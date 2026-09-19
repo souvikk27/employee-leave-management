@@ -2,7 +2,7 @@ using System.Data.Common;
 using LeaveManagement.Application.Interfaces;
 using Microsoft.Data.SqlClient;
 
-namespace LeaveManagement.Infrastructure.Persistence;
+namespace LeaveManagement.Infrastructure.Common;
 
 public sealed class SqlConnectionFactory : ISqlConnectionFactory
 {

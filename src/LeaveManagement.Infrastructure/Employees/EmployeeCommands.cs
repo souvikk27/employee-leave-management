@@ -5,7 +5,7 @@ using LeaveManagement.Domain.Entities;
 using LeaveManagement.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace LeaveManagement.Infrastructure.Persistence;
+namespace LeaveManagement.Infrastructure.Employees;
 
 public sealed class EmployeeCommands : IEmployeeCommands
 {

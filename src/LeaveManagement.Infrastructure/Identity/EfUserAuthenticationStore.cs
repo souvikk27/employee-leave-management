@@ -3,7 +3,7 @@ using LeaveManagement.Domain.Entities;
 using LeaveManagement.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace LeaveManagement.Infrastructure.Persistence;
+namespace LeaveManagement.Infrastructure.Identity;
 
 public sealed class EfUserAuthenticationStore : IUserAuthenticationStore
 {

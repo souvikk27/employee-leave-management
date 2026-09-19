@@ -5,7 +5,7 @@ using LeaveManagement.Domain.Enums;
 using LeaveManagement.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-namespace LeaveManagement.Infrastructure.Persistence;
+namespace LeaveManagement.Infrastructure.Leaves;
 
 public sealed class LeaveCommands : ILeaveCommands
 {

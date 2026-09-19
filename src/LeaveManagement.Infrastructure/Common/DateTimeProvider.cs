@@ -1,6 +1,6 @@
 using LeaveManagement.Application.Interfaces;
 
-namespace LeaveManagement.Infrastructure.Persistence;
+namespace LeaveManagement.Infrastructure.Common;
 
 public sealed class DateTimeProvider : IDateTimeProvider
 {

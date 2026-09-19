@@ -3,7 +3,7 @@ using LeaveManagement.Application.DTOs.Employee;
 using LeaveManagement.Application.Interfaces;
 using Microsoft.Data.SqlClient;
 
-namespace LeaveManagement.Infrastructure.Persistence;
+namespace LeaveManagement.Infrastructure.Employees;
 
 public sealed class EmployeeQueries : IEmployeeQueries
 {

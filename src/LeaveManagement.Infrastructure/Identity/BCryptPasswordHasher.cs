@@ -1,7 +1,7 @@
 using BCrypt.Net;
 using LeaveManagement.Application.Interfaces;
 
-namespace LeaveManagement.Infrastructure.Persistence;
+namespace LeaveManagement.Infrastructure.Identity;
 
 public sealed class BCryptPasswordHasher : IPasswordHasher
 {

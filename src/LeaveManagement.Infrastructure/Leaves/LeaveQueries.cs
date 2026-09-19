@@ -2,7 +2,7 @@ using Dapper;
 using LeaveManagement.Application.DTOs.Leave;
 using LeaveManagement.Application.Interfaces;
 
-namespace LeaveManagement.Infrastructure.Persistence;
+namespace LeaveManagement.Infrastructure.Leaves;
 
 public sealed class LeaveQueries : ILeaveQueries
 {

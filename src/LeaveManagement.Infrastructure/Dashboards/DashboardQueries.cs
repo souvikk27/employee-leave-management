@@ -2,8 +2,9 @@ using Dapper;
 using LeaveManagement.Application.DTOs.Dashboard;
 using LeaveManagement.Application.DTOs.Leave;
 using LeaveManagement.Application.Interfaces;
+using LeaveManagement.Domain.Constants;
 
-namespace LeaveManagement.Infrastructure.Persistence;
+namespace LeaveManagement.Infrastructure.Dashboards;
 
 public sealed class DashboardQueries : IDashboardQueries
 {
@@ -20,15 +21,23 @@ public sealed class DashboardQueries : IDashboardQueries
         const string sql =
             @"
             SELECT
-                (SELECT COUNT(*) FROM Employees) AS TotalEmployees,
-                (SELECT COUNT(*) FROM Employees WHERE IsActive = 1) AS ActiveEmployees,
+                (SELECT COUNT(*) FROM Employees e
+                 WHERE NOT EXISTS (
+                     SELECT 1 FROM UserRoles ur
+                     JOIN Roles r ON r.Id = ur.RoleId
+                     WHERE ur.UserId = e.UserId AND r.Name = @adminRole)) AS TotalEmployees,
+                (SELECT COUNT(*) FROM Employees e
+                 WHERE e.IsActive = 1 AND NOT EXISTS (
+                     SELECT 1 FROM UserRoles ur
+                     JOIN Roles r ON r.Id = ur.RoleId
+                     WHERE ur.UserId = e.UserId AND r.Name = @adminRole)) AS ActiveEmployees,
                 ISNULL(SUM(CASE WHEN Status = 1 THEN 1 ELSE 0 END), 0) AS PendingRequests,
                 ISNULL(SUM(CASE WHEN Status = 2 THEN 1 ELSE 0 END), 0) AS ApprovedRequests,
                 ISNULL(SUM(CASE WHEN Status = 3 THEN 1 ELSE 0 END), 0) AS RejectedRequests,
                 COUNT(*) AS TotalRequests
             FROM LeaveRequests;
         ";
-        return await conn.QuerySingleAsync<AdminDashboardDto>(sql);
+        return await conn.QuerySingleAsync<AdminDashboardDto>(sql, new { adminRole = Roles.Admin });
     }
 
     public async Task<EmployeeDashboardDto> GetEmployeeSummaryAsync(
