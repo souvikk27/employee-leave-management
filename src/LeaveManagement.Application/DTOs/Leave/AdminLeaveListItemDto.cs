@@ -10,4 +10,6 @@ public sealed class AdminLeaveListItemDto
     public string Reason { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
     public DateTimeOffset CreatedAt { get; set; }
+    public string? ReviewedByEmail { get; set; }
+    public DateTimeOffset? ReviewedAt { get; set; }
 }

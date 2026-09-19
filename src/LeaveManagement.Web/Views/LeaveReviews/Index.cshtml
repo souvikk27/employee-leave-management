@@ -8,7 +8,7 @@
 
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success alert-dismissible fade show rounded-pill px-4 py-2 mb-3" role="alert">
+    <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
         <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
@@ -16,7 +16,7 @@
 
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger alert-dismissible fade show rounded-pill px-4 py-2 mb-3" role="alert">
+    <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
         <i class="bi bi-exclamation-circle me-2"></i>@TempData["Error"]
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
@@ -40,12 +40,17 @@
                     <i class="bi bi-search"></i>
                     <input name="search" value="@Model.Search" placeholder="Search employee or reason..." />
                 </span>
+                <input type="date" name="fromDate" class="form-control w-auto" value="@Model.FromDate?.ToString("yyyy-MM-dd")" title="From date" />
+                <input type="date" name="toDate" class="form-control w-auto" value="@Model.ToDate?.ToString("yyyy-MM-dd")" title="To date" />
                 <button type="submit" class="btn btn-sm btn-outline-ink">Filter</button>
-                @if (!string.IsNullOrWhiteSpace(Model.StatusFilter) || !string.IsNullOrWhiteSpace(Model.Search))
+                @if (!string.IsNullOrWhiteSpace(Model.StatusFilter) || !string.IsNullOrWhiteSpace(Model.Search) || Model.FromDate.HasValue || Model.ToDate.HasValue)
                 {
                     <a asp-action="Index" class="btn btn-sm btn-soft">Clear</a>
                 }
             </form>
+            <a asp-action="Export" asp-route-status="@Model.StatusFilter" asp-route-search="@Model.Search" asp-route-fromDate="@Model.FromDate?.ToString("yyyy-MM-dd")" asp-route-toDate="@Model.ToDate?.ToString("yyyy-MM-dd")" class="btn btn-sm btn-soft">
+                <i class="bi bi-file-earmark-excel me-1"></i>Export Excel
+            </a>
         </div>
     </div>
 
@@ -58,6 +63,7 @@
                     <th>To</th>
                     <th>Reason</th>
                     <th>Status</th>
+                    <th>Reviewed By</th>
                     <th class="text-end">Actions</th>
                 </tr>
             </thead>
@@ -65,7 +71,7 @@
                 @if (!Model.Items.Any())
                 {
                     <tr>
-                        <td colspan="6" class="text-center py-5 text-muted">
+                        <td colspan="7" class="text-center py-5 text-muted">
                             <i class="bi bi-calendar-x display-6 d-block mb-2 text-secondary"></i>
                             No leave requests found matching your criteria.
                         </td>
@@ -100,6 +106,16 @@
                             else
                             {
                                 <span class="badge-pill badge-rejected"><span class="badge-dot"></span>Rejected</span>
+                            }
+                        </td>
+                        <td>
+                            @if (item.ReviewedByEmail != null)
+                            {
+                                <span class="text-secondary small">@item.ReviewedByEmail<br />@item.ReviewedAt?.ToString("yyyy-MM-dd HH:mm")</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted small">&mdash;</span>
                             }
                         </td>
                         <td class="text-end">
@@ -142,7 +158,7 @@
     <div class="d-inline-flex gap-2">
         @if (Model.Page > 1)
         {
-            <a asp-action="Index" asp-route-status="@Model.StatusFilter" asp-route-search="@Model.Search" asp-route-page="@(Model.Page - 1)" class="btn btn-sm btn-outline-ink">Previous</a>
+            <a asp-action="Index" asp-route-status="@Model.StatusFilter" asp-route-search="@Model.Search" asp-route-fromDate="@Model.FromDate?.ToString("yyyy-MM-dd")" asp-route-toDate="@Model.ToDate?.ToString("yyyy-MM-dd")" asp-route-page="@(Model.Page - 1)" class="btn btn-sm btn-outline-ink">Previous</a>
         }
         else
         {
@@ -150,7 +166,7 @@
         }
         @if (Model.Page < totalPages)
         {
-            <a asp-action="Index" asp-route-status="@Model.StatusFilter" asp-route-search="@Model.Search" asp-route-page="@(Model.Page + 1)" class="btn btn-sm btn-outline-ink">Next</a>
+            <a asp-action="Index" asp-route-status="@Model.StatusFilter" asp-route-search="@Model.Search" asp-route-fromDate="@Model.FromDate?.ToString("yyyy-MM-dd")" asp-route-toDate="@Model.ToDate?.ToString("yyyy-MM-dd")" asp-route-page="@(Model.Page + 1)" class="btn btn-sm btn-outline-ink">Next</a>
         }
         else
         {

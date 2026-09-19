@@ -7,6 +7,7 @@ public sealed class EmployeeEditViewModel
     public Guid Id { get; set; }
 
     [Required]
+    [StringLength(256)]
     [Display(Name = "Full Name")]
     public string Name { get; set; } = string.Empty;
 

@@ -62,7 +62,6 @@ public class HomeController : Controller
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
-        // Centralized logging hook: the view only ever renders a RequestId, never exception details.
         var feature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
         if (feature?.Error is not null)
             _logger.LogError(feature.Error, "Unhandled exception on {Path}", feature.Path);

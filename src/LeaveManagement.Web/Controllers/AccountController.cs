@@ -45,7 +45,6 @@ public sealed class AccountController : Controller
 
         if (result is null)
         {
-            // No identifiers logged: failed attempts must not leak which field was wrong.
             _logger.LogWarning("Failed login attempt");
             ModelState.AddModelError(string.Empty, "Invalid email or password.");
             return View(model);

@@ -16,7 +16,6 @@ public class LeaveRequest : BaseEntity
     public Guid? ReviewedBy { get; private set; }
     public DateTimeOffset? ReviewedAt { get; private set; }
 
-    // Concurrency token
     public uint Version { get; private set; }
 
     private LeaveRequest()

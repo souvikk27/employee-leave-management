@@ -17,8 +17,6 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(e => e.IsActive).IsRequired().HasDefaultValue(true);
 
-        // Client-owned concurrency token (see LeaveRequestConfiguration): the domain
-        // increments Version and EF Core must persist it, so no ValueGeneratedOnAddOrUpdate.
         builder.Property(e => e.Version).IsConcurrencyToken().HasDefaultValue(1);
 
         builder
@@ -34,7 +32,6 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
         var adminUserId = Guid.Parse("33333333-3333-3333-3333-333333333333");
         var employeeUserId = Guid.Parse("44444444-4444-4444-4444-444444444444");
 
-        // Password hashes for: admin123 / emp123 (BCrypt with work factor 11)
         builder.HasData(
             new User(
                 adminUserId,

@@ -79,19 +79,19 @@ public sealed class LeaveCommands : ILeaveCommands
         await tx.CommitAsync(cancellationToken);
     }
 
-    public Task ApproveLeaveAsync(
+    public Task<LeaveReviewResultDto> ApproveLeaveAsync(
         Guid adminUserId,
         Guid leaveId,
         CancellationToken cancellationToken
     ) => ReviewLeaveAsync(adminUserId, leaveId, approve: true, cancellationToken);
 
-    public Task RejectLeaveAsync(
+    public Task<LeaveReviewResultDto> RejectLeaveAsync(
         Guid adminUserId,
         Guid leaveId,
         CancellationToken cancellationToken
     ) => ReviewLeaveAsync(adminUserId, leaveId, approve: false, cancellationToken);
 
-    private async Task ReviewLeaveAsync(
+    private async Task<LeaveReviewResultDto> ReviewLeaveAsync(
         Guid adminUserId,
         Guid leaveId,
         bool approve,
@@ -99,18 +99,16 @@ public sealed class LeaveCommands : ILeaveCommands
     )
     {
         var leaveRequest =
-            await _db.LeaveRequests.FirstOrDefaultAsync(l => l.Id == leaveId, cancellationToken)
+            await _db
+                .LeaveRequests.Include(l => l.Employee)
+                .FirstOrDefaultAsync(l => l.Id == leaveId, cancellationToken)
             ?? throw new KeyNotFoundException("Leave request not found");
 
-        // Domain enforces Pending -> Approved/Rejected; non-pending throws InvalidOperationException.
         if (approve)
             leaveRequest.Approve(adminUserId);
         else
             leaveRequest.Reject(adminUserId);
 
-        // Single-row update is atomic via SaveChanges. The Version concurrency token
-        // guards against two admins reviewing the same Pending request concurrently:
-        // the loser gets DbUpdateConcurrencyException, translated below.
         try
         {
             await _db.SaveChangesAsync(cancellationToken);
@@ -121,5 +119,17 @@ public sealed class LeaveCommands : ILeaveCommands
                 "This leave request has already been reviewed by another admin"
             );
         }
+
+        var adminEmail = await _db
+            .Users.Where(u => u.Id == adminUserId)
+            .Select(u => u.Email)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return new LeaveReviewResultDto
+        {
+            EmployeeUserId = leaveRequest.Employee!.UserId,
+            ReviewedAt = leaveRequest.ReviewedAt!.Value,
+            ReviewedByEmail = adminEmail ?? string.Empty,
+        };
     }
 }

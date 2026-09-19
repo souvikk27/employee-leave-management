@@ -43,14 +43,25 @@ Server=localhost;Database=LeaveManagementDb;User Id=leavemgmt_app;Password=<stro
 dotnet restore LeaveManagement.slnx
 dotnet build LeaveManagement.slnx -c Release
 
-# 2. Create / migrate the database (runs all EF Core migrations, incl. seed data)
-dotnet ef database update --project src\LeaveManagement.Infrastructure\LeaveManagement.Infrastructure.csproj --startup-project src\LeaveManagement.Web\LeaveManagement.Web.csproj
-
-# 3. Run the test suite
+# 2. Run the test suite
 dotnet test LeaveManagement.slnx
 
-# 4. Run the app (http://localhost:5026 by default, see launchSettings.json)
+# 3. Run the app (http://localhost:5026 by default, see launchSettings.json)
 dotnet run --project src\LeaveManagement.Web\LeaveManagement.Web.csproj
+```
+
+**No manual migration step is needed.** On startup, the app calls
+`Database.Migrate()` against the configured connection string, which creates
+the database if it doesn't exist, applies every pending EF Core migration,
+and seeds the default Admin/Employee accounts (see below) — all automatically
+on first launch. Point the connection string (see Configuration above) at an
+empty database and just `dotnet run`.
+
+To apply migrations manually instead (e.g. to inspect the schema, or to
+migrate a database before the app itself ever runs):
+
+```powershell
+dotnet ef database update --project src\LeaveManagement.Infrastructure\LeaveManagement.Infrastructure.csproj --startup-project src\LeaveManagement.Web\LeaveManagement.Web.csproj
 ```
 
 To inspect the schema without a database:
@@ -61,7 +72,8 @@ dotnet ef migrations script --project src\LeaveManagement.Infrastructure\LeaveMa
 
 ## Default test credentials
 
-Seeded by the initial migration (passwords stored as BCrypt hashes only):
+Seeded automatically by the initial migration on first launch (passwords
+stored as BCrypt hashes only):
 
 | Role     | Email                | Password |
 | -------- | -------------------- | -------- |

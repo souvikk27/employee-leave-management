@@ -30,12 +30,12 @@ public sealed class EmployeeQueries : IEmployeeQueries
     public async Task<IReadOnlyList<EmployeeListItemDto>> ListEmployeesAsync(
         string? search,
         string? statusFilter,
+        Guid excludeUserId,
         int page,
         int pageSize,
         CancellationToken cancellationToken
     )
     {
-        // Normalize UI inputs: blank search means "no search"; blank/unknown status means "all".
         var searchValue = NormalizeSearch(search);
         bool? isActive = NormalizeStatus(statusFilter);
         if (page < 1)
@@ -50,9 +50,10 @@ public sealed class EmployeeQueries : IEmployeeQueries
                 (SELECT COUNT(*) FROM LeaveRequests lr WHERE lr.EmployeeId = e.Id) AS LeaveCount
             FROM Employees e
             JOIN Users u ON u.Id = e.UserId
-            WHERE (@searchValue IS NULL OR e.Name LIKE '%' + @searchValue + '%' OR u.Email LIKE '%' + @searchValue + '%')
+            WHERE e.UserId <> @excludeUserId
+              AND (@searchValue IS NULL OR e.Name LIKE '%' + @searchValue + '%' OR u.Email LIKE '%' + @searchValue + '%')
               AND (@isActive IS NULL OR e.IsActive = @isActive)
-            ORDER BY e.Name
+            ORDER BY e.CreatedAt DESC
             OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
         ";
         var offset = (page - 1) * pageSize;
@@ -62,6 +63,7 @@ public sealed class EmployeeQueries : IEmployeeQueries
             {
                 searchValue,
                 isActive,
+                excludeUserId,
                 offset,
                 pageSize,
             }
@@ -72,6 +74,7 @@ public sealed class EmployeeQueries : IEmployeeQueries
     public async Task<int> CountEmployeesAsync(
         string? search,
         string? statusFilter,
+        Guid excludeUserId,
         CancellationToken cancellationToken
     )
     {
@@ -84,10 +87,19 @@ public sealed class EmployeeQueries : IEmployeeQueries
             SELECT COUNT(*)
             FROM Employees e
             JOIN Users u ON u.Id = e.UserId
-            WHERE (@searchValue IS NULL OR e.Name LIKE '%' + @searchValue + '%' OR u.Email LIKE '%' + @searchValue + '%')
+            WHERE e.UserId <> @excludeUserId
+              AND (@searchValue IS NULL OR e.Name LIKE '%' + @searchValue + '%' OR u.Email LIKE '%' + @searchValue + '%')
               AND (@isActive IS NULL OR e.IsActive = @isActive);
         ";
-        return await conn.ExecuteScalarAsync<int>(sql, new { searchValue, isActive });
+        return await conn.ExecuteScalarAsync<int>(
+            sql,
+            new
+            {
+                searchValue,
+                isActive,
+                excludeUserId,
+            }
+        );
     }
 
     public async Task<EmployeeListItemDto?> GetEmployeeByIdAsync(

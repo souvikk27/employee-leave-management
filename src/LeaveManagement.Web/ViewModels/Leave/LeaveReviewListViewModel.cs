@@ -11,4 +11,6 @@ public sealed class LeaveReviewListViewModel
     public int TotalCount { get; set; }
     public string? StatusFilter { get; set; }
     public string? Search { get; set; }
+    public DateOnly? FromDate { get; set; }
+    public DateOnly? ToDate { get; set; }
 }

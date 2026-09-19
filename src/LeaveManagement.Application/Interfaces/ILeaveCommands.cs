@@ -5,6 +5,16 @@ namespace LeaveManagement.Application.Interfaces;
 public interface ILeaveCommands
 {
     Task ApplyLeaveAsync(Guid userId, ApplyLeaveDto dto, CancellationToken cancellationToken);
-    Task ApproveLeaveAsync(Guid adminUserId, Guid leaveId, CancellationToken cancellationToken);
-    Task RejectLeaveAsync(Guid adminUserId, Guid leaveId, CancellationToken cancellationToken);
+
+    Task<LeaveReviewResultDto> ApproveLeaveAsync(
+        Guid adminUserId,
+        Guid leaveId,
+        CancellationToken cancellationToken
+    );
+
+    Task<LeaveReviewResultDto> RejectLeaveAsync(
+        Guid adminUserId,
+        Guid leaveId,
+        CancellationToken cancellationToken
+    );
 }

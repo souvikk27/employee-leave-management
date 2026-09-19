@@ -64,7 +64,14 @@ public sealed class EmployeeCommands : IEmployeeCommands
         var userRole = UserRole.Create(Guid.NewGuid(), performedBy, userId, role.Id);
         _db.UserRoles.Add(userRole);
 
-        await _db.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await _db.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException)
+        {
+            throw new InvalidOperationException("Email already in use");
+        }
         await tx.CommitAsync(cancellationToken);
     }
 
@@ -105,6 +112,31 @@ public sealed class EmployeeCommands : IEmployeeCommands
         if (employee.User != null)
         {
             employee.User.Deactivate(performedBy);
+        }
+
+        await _db.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task ActivateEmployeeAsync(
+        Guid employeeId,
+        Guid performedBy,
+        CancellationToken cancellationToken
+    )
+    {
+        var employee =
+            await _db
+                .Employees.Include(e => e.User)
+                .FirstOrDefaultAsync(e => e.Id == employeeId, cancellationToken)
+            ?? throw new KeyNotFoundException("Employee not found");
+
+        if (employee.IsActive)
+            return;
+
+        employee.Activate(performedBy);
+
+        if (employee.User != null)
+        {
+            employee.User.Activate(performedBy);
         }
 
         await _db.SaveChangesAsync(cancellationToken);

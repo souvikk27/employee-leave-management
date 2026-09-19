@@ -8,7 +8,7 @@
 
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success alert-dismissible fade show rounded-pill px-4 py-2 mb-3" role="alert">
+    <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
         <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
@@ -106,6 +106,16 @@
                                         <input type="hidden" name="id" value="@e.Id" />
                                         <button type="submit" class="btn btn-sm btn-soft text-danger" onclick="return confirm('Are you sure you want to deactivate this employee? Inactive employees cannot submit leave requests.');">
                                             <i class="bi bi-person-x me-1"></i>Deactivate
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-action="Activate" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@e.Id" />
+                                        <button type="submit" class="btn btn-sm btn-soft" onclick="return confirm('Reactivate this employee? They will be able to log in and submit leave requests again.');">
+                                            <i class="bi bi-person-check me-1"></i>Reactivate
                                         </button>
                                     </form>
                                 }

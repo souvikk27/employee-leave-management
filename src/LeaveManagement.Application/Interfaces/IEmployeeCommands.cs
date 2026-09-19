@@ -19,4 +19,9 @@ public interface IEmployeeCommands
         Guid performedBy,
         CancellationToken cancellationToken
     );
+    Task ActivateEmployeeAsync(
+        Guid employeeId,
+        Guid performedBy,
+        CancellationToken cancellationToken
+    );
 }

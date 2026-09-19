@@ -8,7 +8,6 @@ public class User : BaseEntity
     public string PasswordHash { get; private set; } = string.Empty;
     public bool IsActive { get; private set; } = true;
 
-    // Concurrency token
     public uint Version { get; private set; }
 
     private readonly List<UserRole> _userRoles = new();

@@ -15,6 +15,8 @@ public interface ILeaveQueries
     Task<IReadOnlyList<AdminLeaveListItemDto>> ListAllLeavesAsync(
         string? statusFilter,
         string? search,
+        DateOnly? fromDate,
+        DateOnly? toDate,
         int page,
         int pageSize,
         CancellationToken cancellationToken
@@ -28,6 +30,8 @@ public interface ILeaveQueries
     Task<int> CountAllLeavesAsync(
         string? statusFilter,
         string? search,
+        DateOnly? fromDate,
+        DateOnly? toDate,
         CancellationToken cancellationToken
     );
 }

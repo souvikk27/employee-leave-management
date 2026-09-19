@@ -1,7 +1,14 @@
+using System.Security.Claims;
 using LeaveManagement.Application;
+using LeaveManagement.Application.Interfaces;
 using LeaveManagement.Application.Services;
 using LeaveManagement.Infrastructure;
+using LeaveManagement.Infrastructure.Persistence;
+using LeaveManagement.Web.Hubs;
 using LeaveManagement.Web.Services;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
 
 namespace LeaveManagement.Web.Extensions;
 
@@ -14,6 +21,8 @@ public static class ServiceExtensions
     {
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<ILeaveNotifier, SignalRLeaveNotifier>();
+        services.AddSignalR();
 
         services.AddControllersWithViews();
         services.AddHealthChecks();
@@ -24,9 +33,31 @@ public static class ServiceExtensions
                 options =>
                 {
                     options.LoginPath = "/Account/Login";
-                    options.AccessDeniedPath = "/Account/Login";
                     options.SlidingExpiration = true;
                     options.ExpireTimeSpan = TimeSpan.FromDays(14);
+                    options.Events.OnRedirectToAccessDenied = ctx =>
+                    {
+                        ctx.Response.StatusCode = StatusCodes.Status403Forbidden;
+                        return Task.CompletedTask;
+                    };
+                    options.Events.OnValidatePrincipal = async ctx =>
+                    {
+                        var idClaim = ctx.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+                        if (!Guid.TryParse(idClaim, out var userId))
+                            return;
+                        var db = ctx.HttpContext.RequestServices.GetRequiredService<AppDbContext>();
+                        var active = await db.Users.AnyAsync(
+                            u => u.Id == userId && u.IsActive,
+                            ctx.HttpContext.RequestAborted
+                        );
+                        if (!active)
+                        {
+                            ctx.RejectPrincipal();
+                            await ctx.HttpContext.SignOutAsync(
+                                CookieAuthenticationDefaults.AuthenticationScheme
+                            );
+                        }
+                    };
                 }
             );
         services.AddAuthorization();
@@ -55,13 +86,13 @@ public static class ServiceExtensions
         app.UseHttpsRedirection();
         app.UseStaticFiles();
         app.UseRouting();
-        // Friendly error page (RequestId only, no internals) for 4xx/5xx with empty bodies, e.g. 404s.
         app.UseStatusCodePagesWithReExecute("/Home/Error");
         app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapStaticAssets();
         app.MapHealthChecks("/health");
+        app.MapHub<LeaveNotificationsHub>("/hubs/leave-notifications");
 
         app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}")
             .WithStaticAssets();

@@ -130,4 +130,14 @@ public sealed class EmployeesController : Controller
         TempData["Success"] = "Employee deactivated successfully.";
         return RedirectToAction(nameof(Index));
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Activate(Guid id)
+    {
+        await _service.ActivateEmployeeAsync(id, HttpContext.RequestAborted);
+        _logger.LogInformation("Employee {EmployeeId} activated", id);
+        TempData["Success"] = "Employee reactivated successfully.";
+        return RedirectToAction(nameof(Index));
+    }
 }

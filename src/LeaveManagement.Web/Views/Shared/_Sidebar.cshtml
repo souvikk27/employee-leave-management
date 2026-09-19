@@ -1,18 +1,18 @@
+@using System.Security.Claims
 @{
     var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
     var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
-    var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Avery Chen";
-    var userRole = User.Identity?.IsAuthenticated == true
-        ? (User.IsInRole("Admin") ? "HR administrator" : "Employee")
-        : "HR administrator";
+    var userEmail = User.FindFirst(ClaimTypes.Email)?.Value ?? "";
+    var userRole = User.IsInRole("Admin") ? "Administrator" : "Employee";
+    var userInitial = string.IsNullOrEmpty(userEmail) ? "?" : userEmail[0].ToString().ToUpper();
 }
 
 <aside class="sidebar">
     <div class="brand">
-        <div class="brand-mark">M</div>
+        <div class="brand-mark">L</div>
         <div class="brand-text">
-            <span class="brand-name">Mobbin</span>
-            <span class="brand-sub">Leave admin</span>
+            <span class="brand-name">Leave Management</span>
+            <span class="brand-sub">Workspace</span>
         </div>
     </div>
 
@@ -62,13 +62,12 @@
     }
 
     <div class="sidebar-footer">
-        <div class="user-card" data-bs-toggle="tooltip" data-bs-placement="right" title="@userName">
-            <img class="avatar" src="https://i.pravatar.cc/64?img=12" alt="@userName" />
+        <div class="user-card" data-bs-toggle="tooltip" data-bs-placement="right" title="@userEmail">
+            <div class="avatar avatar-initial">@userInitial</div>
             <div class="user-meta">
-                <div class="user-name">@userName</div>
+                <div class="user-name">@userEmail</div>
                 <div class="user-role">@userRole</div>
             </div>
-            <i class="bi bi-three-dots-vertical"></i>
         </div>
     </div>
 </aside>

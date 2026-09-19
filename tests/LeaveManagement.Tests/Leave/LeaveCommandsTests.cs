@@ -46,6 +46,18 @@ public sealed class LeaveCommandsTests : IDisposable
         public bool IsAuthenticated => _userId is not null;
     }
 
+    private sealed class NoOpLeaveNotifier : ILeaveNotifier
+    {
+        public Task NotifyLeaveReviewedAsync(
+            Guid employeeUserId,
+            Guid leaveId,
+            string status,
+            DateTimeOffset reviewedAt,
+            string reviewedByEmail,
+            CancellationToken cancellationToken
+        ) => Task.CompletedTask;
+    }
+
     private static async Task<(Guid UserId, Guid EmployeeId)> SeedEmployeeAsync(
         AppDbContext db,
         string email,
@@ -230,7 +242,6 @@ public sealed class LeaveCommandsTests : IDisposable
         await db.SaveChangesAsync();
         var commands = new LeaveCommands(db, new FixedTimeProvider());
 
-        // New request starts exactly on the existing request's last day.
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
             commands.ApplyLeaveAsync(
                 userId,
@@ -394,7 +405,6 @@ public sealed class LeaveCommandsTests : IDisposable
         db1.LeaveRequests.Add(leave);
         await db1.SaveChangesAsync();
 
-        // Second reviewer loads the row while it is still Pending, then loses the race.
         _ = await db2.LeaveRequests.SingleAsync(l => l.Id == leave.Id);
         await new LeaveCommands(db1, new FixedTimeProvider()).ApproveLeaveAsync(
             adminId,
@@ -441,7 +451,8 @@ public sealed class LeaveCommandsTests : IDisposable
         using var db = NewDb();
         var service = new LeaveReviewService(
             new LeaveCommands(db, new FixedTimeProvider()),
-            new FakeCurrentUser(null)
+            new FakeCurrentUser(null),
+            new NoOpLeaveNotifier()
         );
 
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() =>

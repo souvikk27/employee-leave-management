@@ -14,11 +14,6 @@ public sealed class LeaveRequestConfiguration : IEntityTypeConfiguration<LeaveRe
 
         builder.Property(e => e.Status).IsRequired();
 
-        // Client-owned concurrency token: the domain increments Version on every
-        // state change and EF Core persists it (original value in the WHERE clause).
-        // ValueGeneratedOnAddOrUpdate must NOT be used here: without a database
-        // trigger the store never computes a new value, so the client increment
-        // would be silently dropped and concurrent updates would never conflict.
         builder.Property(e => e.Version).IsConcurrencyToken().HasDefaultValue(1);
 
         builder
@@ -32,7 +27,6 @@ public sealed class LeaveRequestConfiguration : IEntityTypeConfiguration<LeaveRe
         builder.HasIndex(e => e.FromDate);
         builder.HasIndex(e => e.ToDate);
 
-        // Using check constraint for FromDate <= ToDate as specified in rules
         builder.ToTable(tb =>
             tb.HasCheckConstraint("CK_LeaveRequest_Dates", "[FromDate] <= [ToDate]")
         );

@@ -9,7 +9,6 @@ public class Employee : BaseEntity
     public User? User { get; private set; }
     public bool IsActive { get; private set; } = true;
 
-    // Concurrency token
     public uint Version { get; private set; }
 
     private Employee()

@@ -5,7 +5,6 @@ public class Role : BaseEntity
     public string Name { get; private set; } = string.Empty;
     public string Description { get; private set; } = string.Empty;
 
-    // Concurrency token
     public uint Version { get; private set; }
 
     private readonly List<UserRole> _userRoles = new();

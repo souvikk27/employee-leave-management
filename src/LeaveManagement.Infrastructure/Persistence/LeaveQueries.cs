@@ -13,8 +13,6 @@ public sealed class LeaveQueries : ILeaveQueries
         _factory = factory;
     }
 
-    // LeaveStatus is persisted as int (Pending = 1, Approved = 2, Rejected = 3).
-    // Normalize UI strings to the stored int; empty/unknown means "no filter".
     private static int? NormalizeStatus(string? statusFilter) =>
         string.IsNullOrWhiteSpace(statusFilter)
             ? null
@@ -38,7 +36,6 @@ public sealed class LeaveQueries : ILeaveQueries
         CancellationToken cancellationToken
     )
     {
-        // Project the stored int back to its display name so the DTO/view receive "Pending"/etc.
         int? statusValue = NormalizeStatus(statusFilter);
         var searchValue = NormalizeSearch(search);
         if (page < 1)
@@ -87,6 +84,8 @@ public sealed class LeaveQueries : ILeaveQueries
     public async Task<IReadOnlyList<AdminLeaveListItemDto>> ListAllLeavesAsync(
         string? statusFilter,
         string? search,
+        DateOnly? fromDate,
+        DateOnly? toDate,
         int page,
         int pageSize,
         CancellationToken cancellationToken
@@ -115,15 +114,20 @@ public sealed class LeaveQueries : ILeaveQueries
                     WHEN 3 THEN 'Rejected'
                     ELSE CAST(lr.Status AS NVARCHAR(10))
                 END AS Status,
-                lr.CreatedAt
+                lr.CreatedAt,
+                ru.Email AS ReviewedByEmail,
+                lr.ReviewedAt
             FROM LeaveRequests lr
             JOIN Employees e ON e.Id = lr.EmployeeId
             JOIN Users u ON u.Id = e.UserId
+            LEFT JOIN Users ru ON ru.Id = lr.ReviewedBy
             WHERE (@statusValue IS NULL OR lr.Status = @statusValue)
               AND (@searchValue IS NULL
                    OR lr.Reason LIKE '%' + @searchValue + '%'
                    OR e.Name LIKE '%' + @searchValue + '%'
                    OR u.Email LIKE '%' + @searchValue + '%')
+              AND (@fromDate IS NULL OR lr.ToDate >= @fromDate)
+              AND (@toDate IS NULL OR lr.FromDate <= @toDate)
             ORDER BY lr.CreatedAt DESC
             OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY;
         ";
@@ -134,6 +138,8 @@ public sealed class LeaveQueries : ILeaveQueries
             {
                 statusValue,
                 searchValue,
+                fromDate,
+                toDate,
                 offset,
                 pageSize,
             }
@@ -175,6 +181,8 @@ public sealed class LeaveQueries : ILeaveQueries
     public async Task<int> CountAllLeavesAsync(
         string? statusFilter,
         string? search,
+        DateOnly? fromDate,
+        DateOnly? toDate,
         CancellationToken cancellationToken
     )
     {
@@ -192,8 +200,19 @@ public sealed class LeaveQueries : ILeaveQueries
               AND (@searchValue IS NULL
                    OR lr.Reason LIKE '%' + @searchValue + '%'
                    OR e.Name LIKE '%' + @searchValue + '%'
-                   OR u.Email LIKE '%' + @searchValue + '%');
+                   OR u.Email LIKE '%' + @searchValue + '%')
+              AND (@fromDate IS NULL OR lr.ToDate >= @fromDate)
+              AND (@toDate IS NULL OR lr.FromDate <= @toDate);
         ";
-        return await conn.ExecuteScalarAsync<int>(sql, new { statusValue, searchValue });
+        return await conn.ExecuteScalarAsync<int>(
+            sql,
+            new
+            {
+                statusValue,
+                searchValue,
+                fromDate,
+                toDate,
+            }
+        );
     }
 }
