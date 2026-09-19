@@ -1,0 +1,97 @@
+@model LeaveManagement.Web.ViewModels.Leave.ApplyLeaveViewModel
+@{
+    ViewData["Title"] = "Apply for Leave";
+    ViewData["PageName"] = "My Leave Requests";
+    ViewData["PageTitle"] = "Apply for Leave";
+    ViewData["PageSubtitle"] = "Request time off — new requests start as Pending.";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-6">
+        <div class="card">
+            <div class="card-head mb-4">
+                <div>
+                    <div class="card-title">Leave Details</div>
+                    <div class="card-sub">Pick your dates and tell us the reason. Past dates are not allowed.</div>
+                </div>
+            </div>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show rounded-pill px-4 py-2 mb-3" role="alert">
+                    <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <form asp-action="Apply" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="FromDate" class="form-label small fw-semibold text-secondary"></label>
+                        <input asp-for="FromDate" class="form-control rounded-pill px-3 py-2" type="date" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                        <span asp-validation-for="FromDate" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="ToDate" class="form-label small fw-semibold text-secondary"></label>
+                        <input asp-for="ToDate" class="form-control rounded-pill px-3 py-2" type="date" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                        <span asp-validation-for="ToDate" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mt-2 mb-3">
+                    <span class="badge-pill badge-pending"><span class="badge-dot"></span><span id="leaveDuration">1 day</span></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="Reason" class="form-label small fw-semibold text-secondary"></label>
+                    <textarea asp-for="Reason" class="form-control px-3 py-2" rows="4" placeholder="e.g. Family trip, medical appointment..."></textarea>
+                    <span asp-validation-for="Reason" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-ink px-4">Submit Request</button>
+                    <a asp-action="Index" class="btn btn-outline-ink px-4">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const from = document.querySelector('input[name="FromDate"]');
+            const to = document.querySelector('input[name="ToDate"]');
+            const duration = document.getElementById('leaveDuration');
+            const today = '@DateTime.Today.ToString("yyyy-MM-dd")';
+            from.min = today;
+            to.min = today;
+
+            function refresh() {
+                if (from.value) {
+                    to.min = from.value > today ? from.value : today;
+                    if (to.value && to.value < from.value) {
+                        to.value = from.value;
+                    }
+                }
+                if (to.value && from.value && to.value < from.value) {
+                    to.setCustomValidity('To date must be on or after From date');
+                } else {
+                    to.setCustomValidity('');
+                }
+                if (duration && from.value && to.value && to.value >= from.value) {
+                    const days = Math.round((new Date(to.value) - new Date(from.value)) / 86400000) + 1;
+                    duration.textContent = days + (days === 1 ? ' day' : ' days');
+                }
+            }
+
+            from.addEventListener('change', refresh);
+            to.addEventListener('change', refresh);
+            refresh();
+        });
+    </script>
+}

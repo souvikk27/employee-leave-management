@@ -15,11 +15,9 @@ public sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
 
         builder.Property(e => e.Description).HasMaxLength(500);
 
-        builder
-            .Property(e => e.Version)
-            .IsConcurrencyToken()
-            .ValueGeneratedOnAddOrUpdate()
-            .HasDefaultValue(1);
+        // Client-owned concurrency token (see LeaveRequestConfiguration): the domain
+        // increments Version and EF Core must persist it, so no ValueGeneratedOnAddOrUpdate.
+        builder.Property(e => e.Version).IsConcurrencyToken().HasDefaultValue(1);
 
         builder
             .HasMany(e => e.UserRoles)

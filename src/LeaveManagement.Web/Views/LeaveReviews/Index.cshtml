@@ -1,0 +1,160 @@
+@model LeaveManagement.Web.ViewModels.Leave.LeaveReviewListViewModel
+@{
+    ViewData["Title"] = "Leave Requests";
+    ViewData["PageName"] = "Leave Requests";
+    ViewData["PageTitle"] = "Leave Requests";
+    ViewData["PageSubtitle"] = "Review pending requests and browse approval history.";
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show rounded-pill px-4 py-2 mb-3" role="alert">
+        <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show rounded-pill px-4 py-2 mb-3" role="alert">
+        <i class="bi bi-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="card">
+    <div class="card-head flex-wrap">
+        <div>
+            <div class="card-title">All Leave Requests</div>
+            <div class="card-sub">Approve or reject pending requests.</div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <form method="get" class="d-flex align-items-center gap-2">
+                <select name="status" class="form-select w-auto" onchange="this.form.submit()">
+                    <option value="">All Status</option>
+                    <option value="Pending" selected="@(Model.StatusFilter == "Pending" ? "selected" : null)">Pending</option>
+                    <option value="Approved" selected="@(Model.StatusFilter == "Approved" ? "selected" : null)">Approved</option>
+                    <option value="Rejected" selected="@(Model.StatusFilter == "Rejected" ? "selected" : null)">Rejected</option>
+                </select>
+                <span class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input name="search" value="@Model.Search" placeholder="Search employee or reason..." />
+                </span>
+                <button type="submit" class="btn btn-sm btn-outline-ink">Filter</button>
+                @if (!string.IsNullOrWhiteSpace(Model.StatusFilter) || !string.IsNullOrWhiteSpace(Model.Search))
+                {
+                    <a asp-action="Index" class="btn btn-sm btn-soft">Clear</a>
+                }
+            </form>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Items.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-5 text-muted">
+                            <i class="bi bi-calendar-x display-6 d-block mb-2 text-secondary"></i>
+                            No leave requests found matching your criteria.
+                        </td>
+                    </tr>
+                }
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td>
+                            <div class="emp-cell">
+                                <div class="emp-avatar d-flex align-items-center justify-content-center fw-semibold text-white bg-dark">
+                                    @(string.IsNullOrWhiteSpace(item.EmployeeName) ? "?" : item.EmployeeName[0].ToString().ToUpper())
+                                </div>
+                                <div>
+                                    <div class="emp-name">@item.EmployeeName</div>
+                                    <div class="emp-role">@item.EmployeeEmail</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>@item.FromDate.ToString("yyyy-MM-dd")</td>
+                        <td>@item.ToDate.ToString("yyyy-MM-dd")</td>
+                        <td>@item.Reason</td>
+                        <td>
+                            @if (item.Status == "Approved")
+                            {
+                                <span class="badge-pill badge-approved"><span class="badge-dot"></span>Approved</span>
+                            }
+                            else if (item.Status == "Pending")
+                            {
+                                <span class="badge-pill badge-pending"><span class="badge-dot"></span>Pending</span>
+                            }
+                            else
+                            {
+                                <span class="badge-pill badge-rejected"><span class="badge-dot"></span>Rejected</span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            @if (item.Status == "Pending")
+                            {
+                                <div class="d-inline-flex gap-2">
+                                    <form asp-action="Approve" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" class="btn btn-sm btn-ink">
+                                            <i class="bi bi-check-lg me-1"></i>Approve
+                                        </button>
+                                    </form>
+                                    <form asp-action="Reject" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" class="btn btn-sm btn-soft text-danger" onclick="return confirm('Reject this leave request?');">
+                                            <i class="bi bi-x-lg me-1"></i>Reject
+                                        </button>
+                                    </form>
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="text-secondary small">Reviewed</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@{
+    var totalPages = Math.Max(1, (Model.TotalCount + Model.PageSize - 1) / Model.PageSize);
+}
+<div class="d-flex justify-content-between align-items-center mt-3">
+    <div class="text-muted small">Page @Model.Page of @totalPages (@Model.TotalCount total)</div>
+    <div class="d-inline-flex gap-2">
+        @if (Model.Page > 1)
+        {
+            <a asp-action="Index" asp-route-status="@Model.StatusFilter" asp-route-search="@Model.Search" asp-route-page="@(Model.Page - 1)" class="btn btn-sm btn-outline-ink">Previous</a>
+        }
+        else
+        {
+            <button class="btn btn-sm btn-outline-ink" disabled>Previous</button>
+        }
+        @if (Model.Page < totalPages)
+        {
+            <a asp-action="Index" asp-route-status="@Model.StatusFilter" asp-route-search="@Model.Search" asp-route-page="@(Model.Page + 1)" class="btn btn-sm btn-outline-ink">Next</a>
+        }
+        else
+        {
+            <button class="btn btn-sm btn-outline-ink" disabled>Next</button>
+        }
+    </div>
+</div>

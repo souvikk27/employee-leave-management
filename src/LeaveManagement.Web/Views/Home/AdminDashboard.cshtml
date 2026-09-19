@@ -1,0 +1,77 @@
+@model LeaveManagement.Web.ViewModels.Dashboard.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["PageName"] = "Dashboard";
+    ViewData["PageTitle"] = "Dashboard";
+    ViewData["PageSubtitle"] = "Workforce and leave request overview.";
+}
+
+<div class="row g-3 mb-3">
+    <div class="col-md-6 col-xl-3">
+        <div class="card card-emphasis h-100">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="stat-label">Total employees</span>
+                <div class="stat-icon"><i class="bi bi-people"></i></div>
+            </div>
+            <div class="stat-value mt-3">@Model.TotalEmployees</div>
+            <div class="stat-trend mt-2"><span>@Model.ActiveEmployees active</span></div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+        <div class="card h-100">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="stat-label">Pending requests</span>
+                <div class="stat-icon"><i class="bi bi-hourglass-split"></i></div>
+            </div>
+            <div class="stat-value mt-3">@Model.PendingRequests</div>
+            <div class="stat-trend mt-2">
+                <a asp-controller="LeaveReviews" asp-action="Index" asp-route-status="Pending">Review now</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+        <div class="card h-100">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="stat-label">Approved</span>
+                <div class="stat-icon"><i class="bi bi-check-circle"></i></div>
+            </div>
+            <div class="stat-value mt-3">@Model.ApprovedRequests</div>
+            <div class="stat-trend mt-2"><span>of @Model.TotalRequests total</span></div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-xl-3">
+        <div class="card h-100">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="stat-label">Rejected</span>
+                <div class="stat-icon"><i class="bi bi-x-circle"></i></div>
+            </div>
+            <div class="stat-value mt-3">@Model.RejectedRequests</div>
+            <div class="stat-trend mt-2"><span>of @Model.TotalRequests total</span></div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-head flex-wrap">
+        <div>
+            <div class="card-title">Pending approvals</div>
+            <div class="card-sub">Requests waiting for your review.</div>
+        </div>
+        <a asp-controller="LeaveReviews" asp-action="Index" class="btn btn-ink">
+            <i class="bi bi-calendar-check me-1"></i>All Requests
+        </a>
+    </div>
+    <div class="card-sub px-1 pb-1">
+        @if (Model.PendingRequests == 0)
+        {
+            <span class="text-secondary">Nothing waiting — all requests have been reviewed.</span>
+        }
+        else
+        {
+            <span>@Model.PendingRequests request(s) need a decision.</span>
+        }
+    </div>
+</div>

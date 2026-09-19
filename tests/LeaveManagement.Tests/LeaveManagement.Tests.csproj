@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="xunit" />
     <PackageReference Include="xunit.runner.visualstudio" />
@@ -19,5 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\LeaveManagement.Domain\LeaveManagement.Domain.csproj" />
+    <ProjectReference Include="..\..\src\LeaveManagement.Application\LeaveManagement.Application.csproj" />
+    <ProjectReference Include="..\..\src\LeaveManagement.Infrastructure\LeaveManagement.Infrastructure.csproj" />
   </ItemGroup>
 </Project>

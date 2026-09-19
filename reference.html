@@ -1,0 +1,2016 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leave Management · Admin Dashboard</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --colors-ink: #141414;
+        --colors-ink-soft: #262626;
+        --colors-canvas: #ffffff;
+        --colors-canvas-soft: #f3f3f3;
+        --colors-field: #f0f0f0;
+        --colors-hairline-soft: #f0f0f0;
+        --colors-hairline: #e0e0e0;
+        --colors-accent: #0066ff;
+        --colors-on-primary: #ffffff;
+        --colors-text-muted: #707070;
+        --colors-text-faint: #adadad;
+        --bs-body-bg: var(--colors-canvas);
+        --bs-body-font-family:
+          "Inter", -apple-system, "Helvetica Neue", Arial, sans-serif;
+        --bs-body-color: var(--colors-ink);
+        --bs-body-font-weight: 450;
+        --bs-border-color: var(--colors-hairline-soft);
+        --bs-border-radius: 16px;
+        --bs-border-radius-sm: 16px;
+        --bs-border-radius-lg: 24px;
+      }
+
+      /* Base overrides */
+      body {
+        font-size: 15px;
+        letter-spacing: 0;
+        -webkit-font-smoothing: antialiased;
+      }
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        font-weight: 650;
+        line-height: 1.13;
+        margin: 0;
+      }
+      a {
+        text-decoration: none;
+        color: inherit;
+      }
+
+      /* ===== Layout shell ===== */
+      .app-shell {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        min-height: 100vh;
+        transition: grid-template-columns 0.3s ease;
+      }
+      .app-shell.collapsed {
+        grid-template-columns: 76px 1fr;
+      }
+
+      /* ===== Sidebar ===== */
+      .sidebar {
+        background: var(--colors-ink);
+        color: var(--colors-on-primary);
+        padding: 22px 14px;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        border-radius: 0; /* Removed rounded corners */
+        overflow: hidden;
+        transition: padding 0.3s ease;
+      }
+      .app-shell.collapsed .sidebar {
+        padding: 22px 14px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 10px 22px;
+        height: 62px;
+      }
+      .brand-mark {
+        width: 34px;
+        height: 34px;
+        background: var(--colors-canvas);
+        border-radius: 30%;
+        display: grid;
+        place-items: center;
+        color: var(--colors-ink);
+        font-weight: 700;
+        font-size: 15px;
+        flex-shrink: 0;
+      }
+      .brand-text {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.1;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+      .brand-name {
+        font-weight: 650;
+        font-size: 15px;
+      }
+      .brand-sub {
+        font-size: 10.5px;
+        color: var(--colors-text-faint);
+        font-weight: 450;
+        margin-top: 2px;
+      }
+
+      .nav-section {
+        padding: 10px 0;
+      }
+      .nav-section-label {
+        font-size: 11px;
+        color: var(--colors-text-faint);
+        padding: 4px 14px 8px;
+        font-weight: 600;
+        text-transform: none;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        padding: 9px 14px;
+        border-radius: 9999px;
+        color: var(--colors-text-faint);
+        font-size: 13.5px;
+        font-weight: 500;
+        margin-bottom: 2px;
+        cursor: pointer;
+        transition:
+          background 0.15s,
+          color 0.15s;
+        position: relative;
+        white-space: nowrap;
+      }
+      .nav-item:hover {
+        color: var(--colors-on-primary);
+        background: rgba(255, 255, 255, 0.06);
+      }
+      .nav-item.active {
+        background: var(--colors-canvas);
+        color: var(--colors-ink);
+        font-weight: 600;
+      }
+      .nav-item i {
+        font-size: 15px;
+        width: 18px;
+        text-align: center;
+        flex-shrink: 0;
+      }
+      .nav-item .nav-text {
+        flex: 1;
+        overflow: hidden;
+      }
+      .nav-item .count {
+        margin-left: auto;
+        background: var(--colors-accent);
+        color: var(--colors-on-primary);
+        font-size: 10px;
+        padding: 2px 7px;
+        border-radius: 9999px;
+        font-weight: 600;
+      }
+      .nav-item.active .count {
+        background: var(--colors-ink);
+        color: var(--colors-on-primary);
+      }
+
+      /* Collapsed sidebar adjustments */
+      .app-shell.collapsed .brand {
+        justify-content: center;
+        padding: 6px 0 22px;
+      }
+      .app-shell.collapsed .brand-text,
+      .app-shell.collapsed .nav-section-label,
+      .app-shell.collapsed .nav-text,
+      .app-shell.collapsed .count,
+      .app-shell.collapsed .user-meta,
+      .app-shell.collapsed .user-card i {
+        display: none;
+      }
+      .app-shell.collapsed .nav-item {
+        justify-content: center;
+        padding: 9px;
+      }
+      .app-shell.collapsed .nav-item i {
+        width: auto;
+        font-size: 17px;
+      }
+      .app-shell.collapsed .user-card {
+        justify-content: center;
+        padding: 8px 0;
+      }
+
+      /* Notification dot for collapsed sidebar */
+      .app-shell.collapsed .nav-item.has-notif::after {
+        content: "";
+        position: absolute;
+        top: 7px;
+        right: 7px;
+        width: 8px;
+        height: 8px;
+        background: var(--colors-accent);
+        border-radius: 50%;
+        border: 2px solid var(--colors-ink);
+      }
+
+      .sidebar-footer {
+        margin-top: auto;
+        padding: 14px 6px 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .user-card {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px;
+        border-radius: 9999px;
+        cursor: pointer;
+      }
+      .user-card:hover {
+        background: rgba(255, 255, 255, 0.06);
+      }
+      .avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 9999px;
+        background: var(--colors-canvas-soft);
+        object-fit: cover;
+        filter: grayscale(1);
+        flex-shrink: 0;
+      }
+      .user-meta {
+        line-height: 1.2;
+        flex: 1;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+      .user-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--colors-on-primary);
+      }
+      .user-role {
+        font-size: 11px;
+        color: var(--colors-text-faint);
+      }
+      .user-card i {
+        color: var(--colors-text-faint);
+        font-size: 12px;
+      }
+
+      /* ===== Main ===== */
+      .main {
+        padding: 24px 32px 48px;
+        min-width: 0;
+        background: var(--colors-canvas);
+      }
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding-bottom: 28px;
+        flex-wrap: wrap;
+      }
+      .crumb {
+        font-size: 12px;
+        color: var(--colors-text-muted);
+        font-weight: 450;
+      }
+      .crumb span + span::before {
+        content: "·";
+        margin: 0 8px;
+        color: var(--colors-text-faint);
+      }
+      .page-title {
+        font-size: 30px;
+        font-weight: 650;
+        line-height: 1;
+        letter-spacing: -0.01em;
+      }
+      .page-sub {
+        font-size: 13px;
+        color: var(--colors-text-muted);
+        font-weight: 300;
+        margin-top: 4px;
+      }
+
+      /* Bootstrap Button Overrides */
+      .btn {
+        border-radius: 9999px;
+        font-weight: 600;
+        font-size: 13px;
+        padding: 10px 18px;
+        font-family: inherit;
+      }
+      .btn:focus {
+        box-shadow: none;
+      }
+      .btn-ink {
+        background: var(--colors-ink);
+        color: var(--colors-on-primary);
+        border: none;
+      }
+      .btn-ink:hover {
+        background: var(--colors-ink-soft);
+        color: var(--colors-on-primary);
+      }
+      .btn-outline-ink {
+        background: var(--colors-canvas);
+        color: var(--colors-ink);
+        border: 1px solid var(--colors-hairline);
+      }
+      .btn-outline-ink:hover {
+        background: var(--colors-canvas-soft);
+        color: var(--colors-ink);
+        border-color: var(--colors-hairline);
+      }
+      .btn-soft {
+        background: var(--colors-canvas-soft);
+        color: var(--colors-ink);
+        border: none;
+        font-size: 12px;
+        padding: 8px 14px;
+      }
+      .btn-soft:hover {
+        background: var(--colors-field);
+        color: var(--colors-ink);
+      }
+
+      .icon-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: 9999px;
+        background: var(--colors-canvas);
+        border: 1px solid var(--colors-hairline);
+        display: grid;
+        place-items: center;
+        color: var(--colors-ink);
+        position: relative;
+        cursor: pointer;
+        padding: 0;
+        flex-shrink: 0;
+      }
+      .icon-btn:hover {
+        background: var(--colors-canvas-soft);
+      }
+      .icon-btn .dot {
+        position: absolute;
+        top: 7px;
+        right: 7px;
+        width: 8px;
+        height: 8px;
+        background: var(--colors-accent);
+        border-radius: 50%;
+        border: 2px solid var(--colors-canvas);
+      }
+
+      .search-box {
+        position: relative;
+      }
+      .search-box input {
+        background: var(--colors-canvas);
+        border: 1px solid var(--colors-hairline);
+        border-radius: 9999px;
+        padding: 10px 16px 10px 38px;
+        font-size: 13px;
+        width: 260px;
+        color: var(--colors-ink);
+        font-family: inherit;
+      }
+      .search-box input::placeholder {
+        color: var(--colors-text-faint);
+      }
+      .search-box input:focus {
+        outline: none;
+        border-color: var(--colors-ink);
+        box-shadow: 0 0 0 2px var(--colors-ink);
+      }
+      .search-box i {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--colors-text-muted);
+        font-size: 14px;
+      }
+
+      /* ===== Bootstrap Card Overrides ===== */
+      .card {
+        background: var(--colors-canvas);
+        border: 1px solid var(--colors-hairline-soft);
+        border-radius: 24px;
+        padding: 24px;
+        box-shadow: none;
+        height: 100%;
+      }
+      .card.card-soft {
+        background: var(--colors-canvas-soft);
+        border: none;
+      }
+      .card.card-emphasis {
+        background: var(--colors-canvas-soft);
+        border: none;
+      }
+      .card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 18px;
+        gap: 12px;
+      }
+      .card-title {
+        font-size: 17px;
+        font-weight: 650;
+        letter-spacing: -0.01em;
+        margin: 0;
+      }
+      .card-sub {
+        font-size: 12px;
+        color: var(--colors-text-muted);
+        margin-top: 2px;
+        font-weight: 450;
+      }
+
+      /* Stats */
+      .stat-label {
+        font-size: 13px;
+        color: var(--colors-text-muted);
+        font-weight: 500;
+      }
+      .stat-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 30%;
+        background: var(--colors-canvas-soft);
+        display: grid;
+        place-items: center;
+        color: var(--colors-ink);
+        font-size: 14px;
+      }
+      .card-emphasis .stat-icon {
+        background: var(--colors-canvas);
+      }
+      .stat-value {
+        font-size: 38px;
+        font-weight: 650;
+        line-height: 1;
+        letter-spacing: -0.02em;
+      }
+      .stat-trend {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: var(--colors-text-muted);
+      }
+      .delta {
+        font-weight: 600;
+        color: var(--colors-ink);
+      }
+      .delta.accent {
+        color: var(--colors-accent);
+      }
+      .spark {
+        display: flex;
+        gap: 2px;
+        height: 24px;
+        align-items: end;
+      }
+      .spark span {
+        width: 4px;
+        background: var(--colors-canvas);
+        border-radius: 2px;
+        min-height: 3px;
+      }
+      .card-emphasis .spark span {
+        background: var(--colors-canvas);
+      }
+      .spark span.peak {
+        background: var(--colors-ink);
+      }
+      .card-emphasis .spark span.peak {
+        background: var(--colors-accent);
+      }
+
+      /* ===== Segmented control (Bootstrap nav pills override) ===== */
+      .nav-pills {
+        background: var(--colors-canvas-soft);
+        border-radius: 9999px;
+        padding: 3px;
+        gap: 2px;
+      }
+      .nav-pills .nav-link {
+        border: none;
+        background: transparent;
+        padding: 6px 14px;
+        border-radius: 9999px;
+        font-size: 12.5px;
+        color: var(--colors-text-muted);
+        font-weight: 500;
+        cursor: pointer;
+        font-family: inherit;
+      }
+      .nav-pills .nav-link.active {
+        background: var(--colors-canvas);
+        color: var(--colors-ink);
+        font-weight: 600;
+      }
+
+      /* ===== Badges ===== */
+      .badge-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 10px;
+        border-radius: 9999px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0;
+      }
+      .badge-approved {
+        background: var(--colors-ink);
+        color: var(--colors-on-primary);
+      }
+      .badge-pending {
+        background: var(--colors-canvas-soft);
+        color: var(--colors-ink);
+      }
+      .badge-rejected {
+        background: transparent;
+        color: var(--colors-text-muted);
+        border: 1px solid var(--colors-hairline);
+      }
+      .badge-action {
+        background: var(--colors-accent);
+        color: var(--colors-on-primary);
+      }
+      .badge-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+      }
+
+      /* ===== Bootstrap Table Overrides ===== */
+      .table {
+        margin-bottom: 0;
+        font-size: 13px;
+      }
+      .table > :not(caption) > * > * {
+        padding: 14px;
+        background-color: transparent;
+        border-bottom: 1px solid var(--colors-canvas-soft);
+      }
+      .table thead th {
+        font-size: 11.5px;
+        font-weight: 600;
+        color: var(--colors-text-muted);
+        border-bottom: 1px solid var(--colors-hairline-soft);
+        white-space: nowrap;
+        letter-spacing: 0;
+      }
+      .table tbody tr {
+        transition: background 0.12s;
+      }
+      .table tbody tr:hover {
+        background: var(--colors-canvas-soft);
+      }
+      .table > :not(:last-child) > :last-child > * {
+        border-bottom-color: transparent;
+      }
+
+      .emp-cell {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .emp-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 30%;
+        object-fit: cover;
+        filter: grayscale(1);
+        background: var(--colors-canvas-soft);
+      }
+      .emp-name {
+        font-weight: 600;
+        font-size: 13px;
+        color: var(--colors-ink);
+        line-height: 1.2;
+      }
+      .emp-role {
+        font-size: 11px;
+        color: var(--colors-text-muted);
+        margin-top: 2px;
+      }
+      .leave-type {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12.5px;
+        color: var(--colors-ink);
+      }
+      .type-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 2px;
+        background: var(--colors-ink);
+      }
+      .type-dot.sick {
+        background: var(--colors-text-muted);
+        border: 1px solid var(--colors-hairline);
+      }
+      .type-dot.personal {
+        background: var(--colors-canvas-soft);
+        border: 1px solid var(--colors-hairline);
+      }
+      .type-dot.unpaid {
+        background: transparent;
+        border: 1px solid var(--colors-hairline);
+      }
+
+      .row-actions {
+        display: flex;
+        gap: 6px;
+        justify-content: flex-end;
+      }
+      .btn-action {
+        width: 30px;
+        height: 30px;
+        border-radius: 9999px;
+        border: 1px solid var(--colors-hairline);
+        background: var(--colors-canvas);
+        display: inline-grid;
+        place-items: center;
+        color: var(--colors-ink);
+        cursor: pointer;
+        font-size: 12px;
+        padding: 0;
+      }
+      .btn-action:hover {
+        background: var(--colors-canvas-soft);
+      }
+      .btn-action.approve:hover {
+        background: var(--colors-ink);
+        color: var(--colors-on-primary);
+        border-color: var(--colors-ink);
+      }
+      .btn-action.reject:hover {
+        background: var(--colors-canvas-soft);
+        color: var(--colors-ink);
+      }
+
+      .table-foot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 16px;
+        margin-top: 4px;
+      }
+      .pagination-info {
+        font-size: 12px;
+        color: var(--colors-text-muted);
+      }
+      .pager {
+        display: flex;
+        gap: 6px;
+      }
+      .pager button {
+        width: 30px;
+        height: 30px;
+        border-radius: 9999px;
+        border: 1px solid var(--colors-hairline);
+        background: var(--colors-canvas);
+        color: var(--colors-ink);
+        font-size: 12px;
+        font-weight: 500;
+        cursor: pointer;
+        padding: 0;
+      }
+      .pager button.active {
+        background: var(--colors-ink);
+        color: var(--colors-on-primary);
+        border-color: var(--colors-ink);
+      }
+      .pager button:hover:not(.active) {
+        background: var(--colors-canvas-soft);
+      }
+
+      /* Charts */
+      .bar-chart {
+        display: flex;
+        align-items: end;
+        gap: 14px;
+        height: 180px;
+        padding-top: 8px;
+      }
+      .bar-col {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        height: 100%;
+        justify-content: end;
+      }
+      .bar-val {
+        font-size: 10.5px;
+        color: var(--colors-text-muted);
+        font-weight: 600;
+      }
+      .bar {
+        width: 100%;
+        max-width: 22px;
+        background: var(--colors-canvas-soft);
+        border-radius: 6px 6px 0 0;
+        min-height: 4px;
+        transition: background 0.2s;
+      }
+      .bar.peak {
+        background: var(--colors-ink);
+      }
+      .bar.accent {
+        background: var(--colors-accent);
+      }
+      .bar-label {
+        font-size: 11px;
+        color: var(--colors-text-muted);
+        font-weight: 500;
+      }
+
+      .chart-legend {
+        display: flex;
+        gap: 14px;
+        margin-top: 14px;
+        font-size: 11.5px;
+        color: var(--colors-text-muted);
+      }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .legend-swatch {
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+        background: var(--colors-canvas-soft);
+      }
+      .legend-swatch.ink {
+        background: var(--colors-ink);
+      }
+      .legend-swatch.accent {
+        background: var(--colors-accent);
+      }
+
+      /* Hbar list */
+      .hbar-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 9px 0;
+      }
+      .hbar-label {
+        width: 120px;
+        font-size: 13px;
+        font-weight: 500;
+      }
+      .hbar-track {
+        flex: 1;
+        height: 8px;
+        background: var(--colors-canvas);
+        border-radius: 9999px;
+        overflow: hidden;
+      }
+      .card-soft .hbar-track {
+        background: var(--colors-canvas);
+      }
+      .hbar-fill {
+        height: 100%;
+        background: var(--colors-ink);
+        border-radius: 9999px;
+        transition: width 0.3s;
+      }
+      .hbar-fill.accent {
+        background: var(--colors-accent);
+      }
+      .hbar-value {
+        font-size: 12px;
+        font-weight: 600;
+        width: 44px;
+        text-align: right;
+        color: var(--colors-text-muted);
+      }
+
+      /* Holidays */
+      .holiday-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 11px 0;
+        border-bottom: 1px solid var(--colors-canvas-soft);
+      }
+      .holiday-row:last-child {
+        border-bottom: none;
+      }
+      .holiday-date {
+        width: 46px;
+        height: 46px;
+        border-radius: 16px;
+        background: var(--colors-canvas-soft);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .holiday-day {
+        font-size: 17px;
+        font-weight: 650;
+        line-height: 1;
+      }
+      .holiday-month {
+        font-size: 10px;
+        color: var(--colors-text-muted);
+        font-weight: 600;
+        margin-top: 2px;
+      }
+      .holiday-name {
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .holiday-meta {
+        font-size: 11px;
+        color: var(--colors-text-muted);
+        margin-top: 1px;
+      }
+
+      /* Activity */
+      .activity-item {
+        display: flex;
+        gap: 12px;
+        padding: 11px 0;
+        border-bottom: 1px solid var(--colors-canvas-soft);
+      }
+      .activity-item:last-child {
+        border-bottom: none;
+      }
+      .activity-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--colors-ink);
+        margin-top: 6px;
+        flex-shrink: 0;
+      }
+      .activity-dot.accent {
+        background: var(--colors-accent);
+      }
+      .activity-dot.muted {
+        background: var(--colors-text-faint);
+      }
+      .activity-body {
+        flex: 1;
+      }
+      .activity-text {
+        font-size: 13px;
+        line-height: 1.45;
+      }
+      .activity-text strong {
+        font-weight: 600;
+      }
+      .activity-text .muted {
+        color: var(--colors-text-muted);
+      }
+      .activity-time {
+        font-size: 11px;
+        color: var(--colors-text-faint);
+        margin-top: 3px;
+      }
+
+      /* Department list */
+      .dept-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--colors-canvas-soft);
+      }
+      .dept-row:last-child {
+        border-bottom: none;
+      }
+      .dept-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 30%;
+        background: var(--colors-canvas-soft);
+        display: grid;
+        place-items: center;
+        color: var(--colors-ink);
+        font-size: 14px;
+      }
+      .dept-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .dept-name {
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .dept-meta {
+        font-size: 11px;
+        color: var(--colors-text-muted);
+        margin-top: 1px;
+      }
+      .dept-count {
+        font-size: 13px;
+        font-weight: 650;
+        color: var(--colors-ink);
+      }
+      .dept-count .unit {
+        font-size: 11px;
+        color: var(--colors-text-muted);
+        font-weight: 450;
+        margin-left: 2px;
+      }
+
+      /* Mini calendar */
+      .mini-cal {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+      }
+      .mini-cal .dow {
+        font-size: 10.5px;
+        color: var(--colors-text-faint);
+        text-align: center;
+        padding: 4px 0;
+        font-weight: 600;
+      }
+      .mini-cal .day {
+        aspect-ratio: 1;
+        display: grid;
+        place-items: center;
+        font-size: 12px;
+        border-radius: 8px;
+        color: var(--colors-ink);
+        font-weight: 500;
+        position: relative;
+      }
+      .mini-cal .day.muted {
+        color: var(--colors-text-faint);
+      }
+      .mini-cal .day.today {
+        background: var(--colors-ink);
+        color: var(--colors-on-primary);
+        font-weight: 650;
+      }
+      .mini-cal .day.leave::after {
+        content: "";
+        position: absolute;
+        bottom: 4px;
+        width: 4px;
+        height: 4px;
+        background: var(--colors-accent);
+        border-radius: 50%;
+      }
+      .mini-cal .day.today.leave::after {
+        background: var(--colors-on-primary);
+      }
+
+      /* Responsive */
+      @media (max-width: 991px) {
+        .app-shell {
+          grid-template-columns: 1fr !important;
+        }
+        .sidebar {
+          display: none;
+        }
+        .main {
+          padding: 20px;
+        }
+        .search-box input {
+          width: 180px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell" id="appShell">
+      <!-- ===== Sidebar ===== -->
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">M</div>
+          <div class="brand-text">
+            <span class="brand-name">Mobbin</span>
+            <span class="brand-sub">Leave admin</span>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-label">Overview</div>
+          <a
+            class="nav-item active"
+            data-bs-toggle="tooltip"
+            data-bs-placement="right"
+            title="Dashboard"
+          >
+            <i class="bi bi-grid-1x2-fill"></i>
+            <span class="nav-text">Dashboard</span>
+          </a>
+          <a
+            class="nav-item"
+            data-bs-toggle="tooltip"
+            data-bs-placement="right"
+            title="Calendar"
+          >
+            <i class="bi bi-calendar3"></i>
+            <span class="nav-text">Calendar</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-label">Leave</div>
+          <a
+            class="nav-item has-notif"
+            data-bs-toggle="tooltip"
+            data-bs-placement="right"
+            title="Requests"
+          >
+            <i class="bi bi-inbox"></i> <span class="nav-text">Requests</span>
+            <span class="count">12</span>
+          </a>
+          <a
+            class="nav-item"
+            data-bs-toggle="tooltip"
+            data-bs-placement="right"
+            title="Approvals"
+          >
+            <i class="bi bi-check2-square"></i>
+            <span class="nav-text">Approvals</span>
+          </a>
+          <a
+            class="nav-item"
+            data-bs-toggle="tooltip"
+            data-bs-placement="right"
+            title="Policies"
+          >
+            <i class="bi bi-shield-check"></i>
+            <span class="nav-text">Policies</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-label">People</div>
+          <a
+            class="nav-item"
+            data-bs-toggle="tooltip"
+            data-bs-placement="right"
+            title="Employees"
+          >
+            <i class="bi bi-people"></i> <span class="nav-text">Employees</span>
+          </a>
+          <a
+            class="nav-item"
+            data-bs-toggle="tooltip"
+            data-bs-placement="right"
+            title="Departments"
+          >
+            <i class="bi bi-diagram-3"></i>
+            <span class="nav-text">Departments</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-label">Insights</div>
+          <a
+            class="nav-item"
+            data-bs-toggle="tooltip"
+            data-bs-placement="right"
+            title="Reports"
+          >
+            <i class="bi bi-bar-chart-line"></i>
+            <span class="nav-text">Reports</span>
+          </a>
+          <a
+            class="nav-item"
+            data-bs-toggle="tooltip"
+            data-bs-placement="right"
+            title="Analytics"
+          >
+            <i class="bi bi-graph-up"></i>
+            <span class="nav-text">Analytics</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-label">System</div>
+          <a
+            class="nav-item"
+            data-bs-toggle="tooltip"
+            data-bs-placement="right"
+            title="Settings"
+          >
+            <i class="bi bi-gear"></i> <span class="nav-text">Settings</span>
+          </a>
+        </div>
+
+        <div class="sidebar-footer">
+          <div
+            class="user-card"
+            data-bs-toggle="tooltip"
+            data-bs-placement="right"
+            title="Avery Chen"
+          >
+            <img class="avatar" src="https://i.pravatar.cc/64?img=12" alt="" />
+            <div class="user-meta">
+              <div class="user-name">Avery Chen</div>
+              <div class="user-role">HR administrator</div>
+            </div>
+            <i class="bi bi-three-dots-vertical"></i>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ===== Main ===== -->
+      <main class="main">
+        <!-- Topbar -->
+        <header class="topbar">
+          <div class="d-flex align-items-center gap-3">
+            <button
+              class="icon-btn"
+              id="sidebarToggle"
+              aria-label="Toggle sidebar"
+            >
+              <i class="bi bi-list"></i>
+            </button>
+            <div>
+              <div class="crumb">
+                <span>Workspace</span><span>Leave management</span
+                ><span>Dashboard</span>
+              </div>
+              <h1 class="page-title">Good morning, Avery.</h1>
+              <div class="page-sub">
+                12 requests are waiting for your decision today.
+              </div>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <div class="search-box">
+              <i class="bi bi-search"></i>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Search employees, requests…"
+              />
+            </div>
+            <button class="icon-btn" aria-label="Notifications">
+              <i class="bi bi-bell"></i><span class="dot"></span>
+            </button>
+            <button
+              class="btn btn-outline-ink d-none d-md-inline-flex align-items-center"
+            >
+              <i class="bi bi-download"></i> Export
+            </button>
+            <button class="btn btn-ink d-flex align-items-center">
+              <i class="bi bi-plus-lg"></i> New request
+            </button>
+          </div>
+        </header>
+
+        <!-- Stats -->
+        <div class="row g-3 mb-3">
+          <div class="col-md-6 col-xl-3">
+            <div class="card card-emphasis h-100">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="stat-label">Pending approvals</span>
+                <div class="stat-icon">
+                  <i class="bi bi-hourglass-split"></i>
+                </div>
+              </div>
+              <div class="stat-value mt-3">12</div>
+              <div
+                class="d-flex justify-content-between align-items-center mt-2"
+              >
+                <div class="stat-trend">
+                  <span class="delta accent"
+                    ><i class="bi bi-arrow-up-short"></i>3</span
+                  >
+                  <span>vs. yesterday</span>
+                </div>
+                <div class="spark">
+                  <span style="height: 30%"></span
+                  ><span style="height: 50%"></span
+                  ><span style="height: 40%"></span
+                  ><span style="height: 70%"></span
+                  ><span style="height: 55%"></span
+                  ><span style="height: 85%"></span
+                  ><span style="height: 100%" class="peak"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 col-xl-3">
+            <div class="card h-100">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="stat-label">Approved this month</span>
+                <div class="stat-icon"><i class="bi bi-check-circle"></i></div>
+              </div>
+              <div class="stat-value mt-3">48</div>
+              <div
+                class="d-flex justify-content-between align-items-center mt-2"
+              >
+                <div class="stat-trend">
+                  <span class="delta"
+                    ><i class="bi bi-arrow-up-short"></i>11%</span
+                  >
+                  <span>vs. last month</span>
+                </div>
+                <div class="spark">
+                  <span style="height: 45%"></span
+                  ><span style="height: 55%"></span
+                  ><span style="height: 65%"></span
+                  ><span style="height: 50%"></span
+                  ><span style="height: 75%"></span
+                  ><span style="height: 70%"></span
+                  ><span style="height: 90%" class="peak"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 col-xl-3">
+            <div class="card h-100">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="stat-label">On leave today</span>
+                <div class="stat-icon"><i class="bi bi-person-check"></i></div>
+              </div>
+              <div class="stat-value mt-3">7</div>
+              <div
+                class="d-flex justify-content-between align-items-center mt-2"
+              >
+                <div class="stat-trend">
+                  <span class="delta"><i class="bi bi-dash"></i>2</span>
+                  <span>vs. yesterday</span>
+                </div>
+                <div class="spark">
+                  <span style="height: 60%"></span
+                  ><span style="height: 80%"></span
+                  ><span style="height: 70%"></span
+                  ><span style="height: 90%"></span
+                  ><span style="height: 65%"></span
+                  ><span style="height: 55%"></span
+                  ><span style="height: 50%" class="peak"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6 col-xl-3">
+            <div class="card h-100">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="stat-label">Total workforce</span>
+                <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+              </div>
+              <div class="stat-value mt-3">248</div>
+              <div
+                class="d-flex justify-content-between align-items-center mt-2"
+              >
+                <div class="stat-trend">
+                  <span class="delta"
+                    ><i class="bi bi-arrow-up-short"></i>4</span
+                  >
+                  <span>new hires this month</span>
+                </div>
+                <div class="spark">
+                  <span style="height: 70%"></span
+                  ><span style="height: 72%"></span
+                  ><span style="height: 75%"></span
+                  ><span style="height: 80%"></span
+                  ><span style="height: 85%"></span
+                  ><span style="height: 92%"></span
+                  ><span style="height: 100%" class="peak"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending approvals table + side panel -->
+        <div class="row g-3 mb-3">
+          <div class="col-lg-8">
+            <div class="card h-100">
+              <div class="card-head">
+                <div>
+                  <div class="card-title">Pending approvals</div>
+                  <div class="card-sub">
+                    Review and act on outstanding leave requests.
+                  </div>
+                </div>
+                <ul class="nav nav-pills">
+                  <li class="nav-item">
+                    <button class="nav-link active">All</button>
+                  </li>
+                  <li class="nav-item">
+                    <button class="nav-link">Pending</button>
+                  </li>
+                  <li class="nav-item">
+                    <button class="nav-link">Approved</button>
+                  </li>
+                </ul>
+              </div>
+
+              <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                  <thead>
+                    <tr>
+                      <th>Employee</th>
+                      <th>Leave type</th>
+                      <th>Date range</th>
+                      <th>Days</th>
+                      <th>Status</th>
+                      <th class="text-end">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <div class="emp-cell">
+                          <img
+                            class="emp-avatar"
+                            src="https://i.pravatar.cc/64?img=5"
+                            alt=""
+                          />
+                          <div>
+                            <div class="emp-name">Maya Okonkwo</div>
+                            <div class="emp-role">Senior designer · Design</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="leave-type"
+                          ><span class="type-dot"></span>Annual</span
+                        >
+                      </td>
+                      <td>Nov 18 — Nov 22</td>
+                      <td>5</td>
+                      <td>
+                        <span class="badge-pill badge-action"
+                          ><span class="badge-dot"></span>Action needed</span
+                        >
+                      </td>
+                      <td>
+                        <div class="row-actions">
+                          <button class="btn-action reject">
+                            <i class="bi bi-x-lg"></i>
+                          </button>
+                          <button class="btn-action approve">
+                            <i class="bi bi-check-lg"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="emp-cell">
+                          <img
+                            class="emp-avatar"
+                            src="https://i.pravatar.cc/64?img=33"
+                            alt=""
+                          />
+                          <div>
+                            <div class="emp-name">Daniel Ferreira</div>
+                            <div class="emp-role">Engineer · Platform</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="leave-type"
+                          ><span class="type-dot sick"></span>Sick</span
+                        >
+                      </td>
+                      <td>Nov 14 — Nov 15</td>
+                      <td>2</td>
+                      <td>
+                        <span class="badge-pill badge-action"
+                          ><span class="badge-dot"></span>Action needed</span
+                        >
+                      </td>
+                      <td>
+                        <div class="row-actions">
+                          <button class="btn-action reject">
+                            <i class="bi bi-x-lg"></i>
+                          </button>
+                          <button class="btn-action approve">
+                            <i class="bi bi-check-lg"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="emp-cell">
+                          <img
+                            class="emp-avatar"
+                            src="https://i.pravatar.cc/64?img=20"
+                            alt=""
+                          />
+                          <div>
+                            <div class="emp-name">Priya Raman</div>
+                            <div class="emp-role">PM · Product</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="leave-type"
+                          ><span class="type-dot personal"></span>Personal</span
+                        >
+                      </td>
+                      <td>Nov 20</td>
+                      <td>1</td>
+                      <td>
+                        <span class="badge-pill badge-pending"
+                          ><span class="badge-dot"></span>Pending</span
+                        >
+                      </td>
+                      <td>
+                        <div class="row-actions">
+                          <button class="btn-action reject">
+                            <i class="bi bi-x-lg"></i>
+                          </button>
+                          <button class="btn-action approve">
+                            <i class="bi bi-check-lg"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="emp-cell">
+                          <img
+                            class="emp-avatar"
+                            src="https://i.pravatar.cc/64?img=15"
+                            alt=""
+                          />
+                          <div>
+                            <div class="emp-name">Theo Larsson</div>
+                            <div class="emp-role">Engineer · Mobile</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="leave-type"
+                          ><span class="type-dot"></span>Annual</span
+                        >
+                      </td>
+                      <td>Dec 02 — Dec 12</td>
+                      <td>9</td>
+                      <td>
+                        <span class="badge-pill badge-pending"
+                          ><span class="badge-dot"></span>Pending</span
+                        >
+                      </td>
+                      <td>
+                        <div class="row-actions">
+                          <button class="btn-action reject">
+                            <i class="bi bi-x-lg"></i>
+                          </button>
+                          <button class="btn-action approve">
+                            <i class="bi bi-check-lg"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <div class="emp-cell">
+                          <img
+                            class="emp-avatar"
+                            src="https://i.pravatar.cc/64?img=45"
+                            alt=""
+                          />
+                          <div>
+                            <div class="emp-name">Aiko Tanaka</div>
+                            <div class="emp-role">Researcher · Insights</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="leave-type"
+                          ><span class="type-dot unpaid"></span>Unpaid</span
+                        >
+                      </td>
+                      <td>Nov 25 — Nov 29</td>
+                      <td>5</td>
+                      <td>
+                        <span class="badge-pill badge-approved"
+                          ><span class="badge-dot"></span>Approved</span
+                        >
+                      </td>
+                      <td>
+                        <div class="row-actions">
+                          <button class="btn-action">
+                            <i class="bi bi-eye"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="table-foot">
+                <div class="pagination-info">Showing 1–5 of 24 requests</div>
+                <div class="pager">
+                  <button><i class="bi bi-chevron-left"></i></button>
+                  <button class="active">1</button>
+                  <button>2</button>
+                  <button>3</button>
+                  <button>4</button>
+                  <button><i class="bi bi-chevron-right"></i></button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="d-flex flex-column gap-3 h-100">
+              <div class="card">
+                <div class="card-head">
+                  <div>
+                    <div class="card-title">Leave types</div>
+                    <div class="card-sub">Distribution this month.</div>
+                  </div>
+                  <button class="btn btn-soft">
+                    <i class="bi bi-arrow-up-right"></i>
+                  </button>
+                </div>
+                <div class="hbar-row">
+                  <div class="hbar-label">Annual</div>
+                  <div class="hbar-track">
+                    <div class="hbar-fill" style="width: 72%"></div>
+                  </div>
+                  <div class="hbar-value">28</div>
+                </div>
+                <div class="hbar-row">
+                  <div class="hbar-label">Sick</div>
+                  <div class="hbar-track">
+                    <div class="hbar-fill" style="width: 38%"></div>
+                  </div>
+                  <div class="hbar-value">11</div>
+                </div>
+                <div class="hbar-row">
+                  <div class="hbar-label">Personal</div>
+                  <div class="hbar-track">
+                    <div class="hbar-fill" style="width: 28%"></div>
+                  </div>
+                  <div class="hbar-value">6</div>
+                </div>
+                <div class="hbar-row">
+                  <div class="hbar-label">Unpaid</div>
+                  <div class="hbar-track">
+                    <div class="hbar-fill accent" style="width: 18%"></div>
+                  </div>
+                  <div class="hbar-value">3</div>
+                </div>
+              </div>
+
+              <div class="card flex-grow-1">
+                <div class="card-head">
+                  <div>
+                    <div class="card-title">Upcoming holidays</div>
+                    <div class="card-sub">Office-wide closures.</div>
+                  </div>
+                </div>
+                <div class="holiday-row">
+                  <div class="holiday-date">
+                    <span class="holiday-day">28</span
+                    ><span class="holiday-month">Nov</span>
+                  </div>
+                  <div>
+                    <div class="holiday-name">Thanksgiving day</div>
+                    <div class="holiday-meta">Thursday · office closed</div>
+                  </div>
+                </div>
+                <div class="holiday-row">
+                  <div class="holiday-date">
+                    <span class="holiday-day">29</span
+                    ><span class="holiday-month">Nov</span>
+                  </div>
+                  <div>
+                    <div class="holiday-name">Day after Thanksgiving</div>
+                    <div class="holiday-meta">Friday · office closed</div>
+                  </div>
+                </div>
+                <div class="holiday-row">
+                  <div class="holiday-date">
+                    <span class="holiday-day">25</span
+                    ><span class="holiday-month">Dec</span>
+                  </div>
+                  <div>
+                    <div class="holiday-name">Christmas day</div>
+                    <div class="holiday-meta">Wednesday · office closed</div>
+                  </div>
+                </div>
+                <div class="holiday-row">
+                  <div class="holiday-date">
+                    <span class="holiday-day">01</span
+                    ><span class="holiday-month">Jan</span>
+                  </div>
+                  <div>
+                    <div class="holiday-name">New Year's day</div>
+                    <div class="holiday-meta">Thursday · office closed</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts row -->
+        <div class="row g-3 mb-3">
+          <div class="col-lg-7">
+            <div class="card h-100">
+              <div class="card-head">
+                <div>
+                  <div class="card-title">Leave trends</div>
+                  <div class="card-sub">
+                    Approved leave days by month, last 12 months.
+                  </div>
+                </div>
+                <ul class="nav nav-pills">
+                  <li class="nav-item">
+                    <button class="nav-link active">12m</button>
+                  </li>
+                  <li class="nav-item"><button class="nav-link">6m</button></li>
+                  <li class="nav-item">
+                    <button class="nav-link">30d</button>
+                  </li>
+                </ul>
+              </div>
+              <div class="bar-chart">
+                <div class="bar-col">
+                  <span class="bar-val">22</span>
+                  <div class="bar" style="height: 30%"></div>
+                  <span class="bar-label">Dec</span>
+                </div>
+                <div class="bar-col">
+                  <span class="bar-val">18</span>
+                  <div class="bar" style="height: 24%"></div>
+                  <span class="bar-label">Jan</span>
+                </div>
+                <div class="bar-col">
+                  <span class="bar-val">26</span>
+                  <div class="bar" style="height: 36%"></div>
+                  <span class="bar-label">Feb</span>
+                </div>
+                <div class="bar-col">
+                  <span class="bar-val">31</span>
+                  <div class="bar" style="height: 42%"></div>
+                  <span class="bar-label">Mar</span>
+                </div>
+                <div class="bar-col">
+                  <span class="bar-val">28</span>
+                  <div class="bar" style="height: 38%"></div>
+                  <span class="bar-label">Apr</span>
+                </div>
+                <div class="bar-col">
+                  <span class="bar-val">35</span>
+                  <div class="bar" style="height: 48%"></div>
+                  <span class="bar-label">May</span>
+                </div>
+                <div class="bar-col">
+                  <span class="bar-val">52</span>
+                  <div class="bar peak" style="height: 72%"></div>
+                  <span class="bar-label">Jun</span>
+                </div>
+                <div class="bar-col">
+                  <span class="bar-val">61</span>
+                  <div class="bar peak" style="height: 84%"></div>
+                  <span class="bar-label">Jul</span>
+                </div>
+                <div class="bar-col">
+                  <span class="bar-val">48</span>
+                  <div class="bar" style="height: 66%"></div>
+                  <span class="bar-label">Aug</span>
+                </div>
+                <div class="bar-col">
+                  <span class="bar-val">33</span>
+                  <div class="bar" style="height: 45%"></div>
+                  <span class="bar-label">Sep</span>
+                </div>
+                <div class="bar-col">
+                  <span class="bar-val">29</span>
+                  <div class="bar" style="height: 40%"></div>
+                  <span class="bar-label">Oct</span>
+                </div>
+                <div class="bar-col">
+                  <span class="bar-val">48</span>
+                  <div class="bar accent" style="height: 66%"></div>
+                  <span class="bar-label">Nov</span>
+                </div>
+              </div>
+              <div class="chart-legend">
+                <div class="legend-item">
+                  <span class="legend-swatch"></span> Approved days
+                </div>
+                <div class="legend-item">
+                  <span class="legend-swatch ink"></span> Peak months
+                </div>
+                <div class="legend-item">
+                  <span class="legend-swatch accent"></span> Current month
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-5">
+            <div class="card h-100">
+              <div class="card-head">
+                <div>
+                  <div class="card-title">Recent activity</div>
+                  <div class="card-sub">
+                    Latest changes across the workspace.
+                  </div>
+                </div>
+                <button class="btn btn-soft">View all</button>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot accent"></div>
+                <div class="activity-body">
+                  <div class="activity-text">
+                    <strong>You</strong> approved
+                    <strong>Maya Okonkwo's</strong> annual leave request.
+                  </div>
+                  <div class="activity-time">2 minutes ago</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot"></div>
+                <div class="activity-body">
+                  <div class="activity-text">
+                    <strong>Daniel Ferreira</strong> submitted a sick leave
+                    request for 2 days.
+                  </div>
+                  <div class="activity-time">38 minutes ago</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot"></div>
+                <div class="activity-body">
+                  <div class="activity-text">
+                    <strong>Priya Raman</strong> updated her pending personal
+                    leave to Nov 20.
+                  </div>
+                  <div class="activity-time">1 hour ago</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot muted"></div>
+                <div class="activity-body">
+                  <div class="activity-text">
+                    <strong class="muted">System</strong> auto-balanced accruals
+                    for 248 employees.
+                  </div>
+                  <div class="activity-time">3 hours ago</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot"></div>
+                <div class="activity-body">
+                  <div class="activity-text">
+                    <strong>Theo Larsson</strong> requested annual leave for Dec
+                    02 — Dec 12.
+                  </div>
+                  <div class="activity-time">Yesterday at 4:48pm</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom row: Department + Calendar -->
+        <div class="row g-3 mb-3">
+          <div class="col-lg-7">
+            <div class="card h-100">
+              <div class="card-head">
+                <div>
+                  <div class="card-title">On leave by department</div>
+                  <div class="card-sub">Today's out-of-office headcount.</div>
+                </div>
+                <button class="btn btn-soft">
+                  <i class="bi bi-arrow-up-right"></i> Reports
+                </button>
+              </div>
+              <div class="dept-row">
+                <div class="dept-icon"><i class="bi bi-palette"></i></div>
+                <div class="dept-info">
+                  <div class="dept-name">Design</div>
+                  <div class="dept-meta">42 people · 18% on leave</div>
+                </div>
+                <div class="dept-count">3<span class="unit">out</span></div>
+              </div>
+              <div class="dept-row">
+                <div class="dept-icon"><i class="bi bi-code-slash"></i></div>
+                <div class="dept-info">
+                  <div class="dept-name">Engineering</div>
+                  <div class="dept-meta">96 people · 4% on leave</div>
+                </div>
+                <div class="dept-count">4<span class="unit">out</span></div>
+              </div>
+              <div class="dept-row">
+                <div class="dept-icon"><i class="bi bi-bag"></i></div>
+                <div class="dept-info">
+                  <div class="dept-name">Product</div>
+                  <div class="dept-meta">28 people · 7% on leave</div>
+                </div>
+                <div class="dept-count">2<span class="unit">out</span></div>
+              </div>
+              <div class="dept-row">
+                <div class="dept-icon"><i class="bi bi-megaphone"></i></div>
+                <div class="dept-info">
+                  <div class="dept-name">Growth</div>
+                  <div class="dept-meta">31 people · 3% on leave</div>
+                </div>
+                <div class="dept-count">1<span class="unit">out</span></div>
+              </div>
+              <div class="dept-row">
+                <div class="dept-icon"><i class="bi bi-people"></i></div>
+                <div class="dept-info">
+                  <div class="dept-name">Operations</div>
+                  <div class="dept-meta">51 people · 4% on leave</div>
+                </div>
+                <div class="dept-count">2<span class="unit">out</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-5">
+            <div class="card h-100">
+              <div class="card-head">
+                <div>
+                  <div class="card-title">November 2024</div>
+                  <div class="card-sub">
+                    Days with approved leave are marked.
+                  </div>
+                </div>
+                <div class="d-flex gap-2">
+                  <button class="btn-action">
+                    <i class="bi bi-chevron-left"></i>
+                  </button>
+                  <button class="btn-action">
+                    <i class="bi bi-chevron-right"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="mini-cal">
+                <div class="dow">M</div>
+                <div class="dow">T</div>
+                <div class="dow">W</div>
+                <div class="dow">T</div>
+                <div class="dow">F</div>
+                <div class="dow">S</div>
+                <div class="dow">S</div>
+                <div class="day muted">28</div>
+                <div class="day muted">29</div>
+                <div class="day muted">30</div>
+                <div class="day muted">31</div>
+                <div class="day">1</div>
+                <div class="day">2</div>
+                <div class="day">3</div>
+                <div class="day">4</div>
+                <div class="day">5</div>
+                <div class="day">6</div>
+                <div class="day">7</div>
+                <div class="day leave">8</div>
+                <div class="day">9</div>
+                <div class="day">10</div>
+                <div class="day leave">11</div>
+                <div class="day leave">12</div>
+                <div class="day leave">13</div>
+                <div class="day leave">14</div>
+                <div class="day leave">15</div>
+                <div class="day">16</div>
+                <div class="day">17</div>
+                <div class="day leave">18</div>
+                <div class="day leave">19</div>
+                <div class="day leave">20</div>
+                <div class="day leave">21</div>
+                <div class="day leave">22</div>
+                <div class="day">23</div>
+                <div class="day">24</div>
+                <div class="day leave">25</div>
+                <div class="day leave">26</div>
+                <div class="day leave">27</div>
+                <div class="day leave">28</div>
+                <div class="day leave">29</div>
+                <div class="day">30</div>
+                <div class="day muted">1</div>
+              </div>
+              <div class="chart-legend">
+                <div class="legend-item">
+                  <span class="legend-swatch ink"></span> Today
+                </div>
+                <div class="legend-item">
+                  <span class="legend-swatch accent"></span> Approved leave
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Initialize Bootstrap Tooltips
+      var tooltipTriggerList = [].slice.call(
+        document.querySelectorAll('[data-bs-toggle="tooltip"]'),
+      );
+      var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+      });
+
+      // Sidebar Toggle Logic
+      const sidebarToggle = document.getElementById("sidebarToggle");
+      const appShell = document.getElementById("appShell");
+
+      sidebarToggle.addEventListener("click", () => {
+        appShell.classList.toggle("collapsed");
+
+        // Slightly delay tooltip hide/show to ensure layout transitions cleanly
+        setTimeout(() => {
+          if (appShell.classList.contains("collapsed")) {
+            tooltipList.forEach((t) => t.enable());
+          } else {
+            tooltipList.forEach((t) => t.disable());
+          }
+        }, 100);
+      });
+
+      // Initially disable tooltips if not collapsed (they are only needed for collapsed sidebar)
+      if (!appShell.classList.contains("collapsed")) {
+        tooltipList.forEach((t) => t.disable());
+      }
+
+      // Segmented control behavior
+      document.querySelectorAll(".nav-pills").forEach((seg) => {
+        seg.addEventListener("click", (e) => {
+          if (e.target.classList.contains("nav-link")) {
+            seg
+              .querySelectorAll(".nav-link")
+              .forEach((b) => b.classList.remove("active"));
+            e.target.classList.add("active");
+          }
+        });
+      });
+
+      // Approve / reject quick interaction
+      document.querySelectorAll(".btn-action.approve").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const row = btn.closest("tr");
+          const badge = row.querySelector(".badge-pill");
+          badge.className = "badge-pill badge-approved";
+          badge.innerHTML = '<span class="badge-dot"></span>Approved';
+          const actions = row.querySelector(".row-actions");
+          actions.innerHTML =
+            '<button class="btn-action" title="View"><i class="bi bi-eye"></i></button>';
+        });
+      });
+
+      document.querySelectorAll(".btn-action.reject").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const row = btn.closest("tr");
+          const badge = row.querySelector(".badge-pill");
+          badge.className = "badge-pill badge-rejected";
+          badge.innerHTML = '<span class="badge-dot"></span>Rejected';
+          const actions = row.querySelector(".row-actions");
+          actions.innerHTML =
+            '<button class="btn-action" title="View"><i class="bi bi-eye"></i></button>';
+        });
+      });
+    </script>
+  </body>
+</html>

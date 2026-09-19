@@ -10,12 +10,15 @@ namespace LeaveManagement.Web.Controllers;
 public sealed class AccountController : Controller
 {
     private readonly LeaveManagement.Application.Interfaces.IAuthenticationService _authService;
+    private readonly ILogger<AccountController> _logger;
 
     public AccountController(
-        LeaveManagement.Application.Interfaces.IAuthenticationService authService
+        LeaveManagement.Application.Interfaces.IAuthenticationService authService,
+        ILogger<AccountController> logger
     )
     {
         _authService = authService;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -42,6 +45,8 @@ public sealed class AccountController : Controller
 
         if (result is null)
         {
+            // No identifiers logged: failed attempts must not leak which field was wrong.
+            _logger.LogWarning("Failed login attempt");
             ModelState.AddModelError(string.Empty, "Invalid email or password.");
             return View(model);
         }
@@ -75,11 +80,12 @@ public sealed class AccountController : Controller
             authProperties
         );
 
+        _logger.LogInformation("User signed in");
+
         if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             return Redirect(returnUrl);
 
-        var redirect = result.Roles.Contains("Admin") ? "/Home/Index" : "/Home/Index";
-        return Redirect(redirect);
+        return RedirectToAction("Index", "Home");
     }
 
     [HttpPost]

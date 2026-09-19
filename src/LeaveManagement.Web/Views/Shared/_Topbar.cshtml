@@ -26,13 +26,6 @@
         <button class="icon-btn" aria-label="Notifications">
             <i class="bi bi-bell"></i><span class="dot"></span>
         </button>
-        <button class="btn btn-outline-ink d-none d-md-inline-flex align-items-center"><i class="bi bi-download"></i> Export</button>
-        @if (ViewData["HideNewRequest"] is not true)
-        {
-            <a asp-controller="LeaveRequests" asp-action="Create" class="btn btn-ink d-flex align-items-center">
-                <i class="bi bi-plus-lg"></i> New request
-            </a>
-        }
         @if (User.Identity?.IsAuthenticated == true)
         {
             <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">

@@ -1,0 +1,57 @@
+@model LeaveManagement.Web.ViewModels.Employee.EmployeeEditViewModel
+@{
+    ViewData["Title"] = "Edit Employee";
+    ViewData["PageName"] = "Employees";
+    ViewData["PageTitle"] = "Edit Employee";
+    ViewData["PageSubtitle"] = "Update employee profile details.";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-6">
+        <div class="card">
+            <div class="card-head mb-4">
+                <div>
+                    <div class="card-title">Employee Information</div>
+                    <div class="card-sub">Edit name and view account attributes.</div>
+                </div>
+            </div>
+
+            <form asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label small fw-semibold text-secondary"></label>
+                    <input asp-for="Name" class="form-control rounded-pill px-3 py-2" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold text-secondary">Email</label>
+                    <input type="text" class="form-control rounded-pill px-3 py-2 bg-light text-secondary" value="@Model.Email" readonly />
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label small fw-semibold text-secondary">Status</label>
+                    <div>
+                        @if (Model.IsActive)
+                        {
+                            <span class="badge-pill badge-approved"><span class="badge-dot"></span>Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge-pill badge-rejected"><span class="badge-dot"></span>Inactive</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-ink px-4">Save Changes</button>
+                    <a asp-action="Index" class="btn btn-outline-ink px-4">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

@@ -14,11 +14,9 @@ public sealed class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
 
         builder.Property(e => e.IsActive).IsRequired().HasDefaultValue(true);
 
-        builder
-            .Property(e => e.Version)
-            .IsConcurrencyToken()
-            .ValueGeneratedOnAddOrUpdate()
-            .HasDefaultValue(1);
+        // Client-owned concurrency token (see LeaveRequestConfiguration): the domain
+        // increments Version and EF Core must persist it, so no ValueGeneratedOnAddOrUpdate.
+        builder.Property(e => e.Version).IsConcurrencyToken().HasDefaultValue(1);
 
         builder
             .HasOne(e => e.User)

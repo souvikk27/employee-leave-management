@@ -55,7 +55,7 @@ namespace LeaveManagement.Infrastructure.Migrations
 
                     b.Property<long>("Version")
                         .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasDefaultValue(1L);
 
@@ -138,7 +138,7 @@ namespace LeaveManagement.Infrastructure.Migrations
 
                     b.Property<long>("Version")
                         .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasDefaultValue(1L);
 
@@ -188,7 +188,7 @@ namespace LeaveManagement.Infrastructure.Migrations
 
                     b.Property<long>("Version")
                         .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasDefaultValue(1L);
 
@@ -259,7 +259,7 @@ namespace LeaveManagement.Infrastructure.Migrations
 
                     b.Property<long>("Version")
                         .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("bigint")
                         .HasDefaultValue(1L);
 

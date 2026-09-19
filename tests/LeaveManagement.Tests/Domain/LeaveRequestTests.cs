@@ -15,7 +15,15 @@ public sealed class LeaveRequestTests
         var to = new DateOnly(2026, 01, 05);
 
         Assert.Throws<ArgumentException>(() =>
-            LeaveRequest.Create(id, createdBy, employeeId, from, to, "Reason")
+            LeaveRequest.Create(
+                id,
+                createdBy,
+                employeeId,
+                from,
+                to,
+                "Reason",
+                DateTimeOffset.UtcNow
+            )
         );
     }
 
@@ -29,7 +37,7 @@ public sealed class LeaveRequestTests
         var to = new DateOnly(2026, 01, 05);
 
         Assert.Throws<ArgumentException>(() =>
-            LeaveRequest.Create(id, createdBy, employeeId, from, to, "   ")
+            LeaveRequest.Create(id, createdBy, employeeId, from, to, "   ", DateTimeOffset.UtcNow)
         );
     }
 
@@ -42,7 +50,15 @@ public sealed class LeaveRequestTests
         var from = new DateOnly(2026, 01, 01);
         var to = new DateOnly(2026, 01, 05);
 
-        var request = LeaveRequest.Create(id, createdBy, employeeId, from, to, "Vacation");
+        var request = LeaveRequest.Create(
+            id,
+            createdBy,
+            employeeId,
+            from,
+            to,
+            "Vacation",
+            DateTimeOffset.UtcNow
+        );
 
         Assert.Equal(LeaveStatus.Pending, request.Status);
         Assert.True(request.IsPending);
@@ -58,7 +74,8 @@ public sealed class LeaveRequestTests
             Guid.NewGuid(),
             new DateOnly(2026, 01, 01),
             new DateOnly(2026, 01, 05),
-            "Reason"
+            "Reason",
+            DateTimeOffset.UtcNow
         );
 
         var adminId = Guid.NewGuid();
@@ -79,7 +96,8 @@ public sealed class LeaveRequestTests
             Guid.NewGuid(),
             new DateOnly(2026, 01, 01),
             new DateOnly(2026, 01, 05),
-            "Reason"
+            "Reason",
+            DateTimeOffset.UtcNow
         );
         request.Approve(Guid.NewGuid());
 
@@ -95,7 +113,8 @@ public sealed class LeaveRequestTests
             Guid.NewGuid(),
             new DateOnly(2026, 01, 01),
             new DateOnly(2026, 01, 05),
-            "Reason"
+            "Reason",
+            DateTimeOffset.UtcNow
         );
 
         var adminId = Guid.NewGuid();
@@ -114,7 +133,8 @@ public sealed class LeaveRequestTests
             Guid.NewGuid(),
             new DateOnly(2026, 01, 01),
             new DateOnly(2026, 01, 10),
-            "A"
+            "A",
+            DateTimeOffset.UtcNow
         );
         var b = LeaveRequest.Create(
             Guid.NewGuid(),
@@ -122,7 +142,8 @@ public sealed class LeaveRequestTests
             Guid.NewGuid(),
             new DateOnly(2026, 01, 05),
             new DateOnly(2026, 01, 15),
-            "B"
+            "B",
+            DateTimeOffset.UtcNow
         );
         b.Reject(Guid.NewGuid());
 
@@ -138,7 +159,8 @@ public sealed class LeaveRequestTests
             Guid.NewGuid(),
             new DateOnly(2026, 01, 01),
             new DateOnly(2026, 01, 10),
-            "A"
+            "A",
+            DateTimeOffset.UtcNow
         );
         var b = LeaveRequest.Create(
             Guid.NewGuid(),
@@ -146,11 +168,38 @@ public sealed class LeaveRequestTests
             Guid.NewGuid(),
             new DateOnly(2026, 01, 05),
             new DateOnly(2026, 01, 15),
-            "B"
+            "B",
+            DateTimeOffset.UtcNow
         );
 
         Assert.True(a.OverlapsWith(b));
         Assert.True(b.OverlapsWith(a));
+    }
+
+    [Fact]
+    public void OverlapsWith_SameDayOverlap_DetectsOverlap()
+    {
+        var multi = LeaveRequest.Create(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            new DateOnly(2026, 01, 01),
+            new DateOnly(2026, 01, 10),
+            "A",
+            DateTimeOffset.UtcNow
+        );
+        var single = LeaveRequest.Create(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            new DateOnly(2026, 01, 05),
+            new DateOnly(2026, 01, 05),
+            "B",
+            DateTimeOffset.UtcNow
+        );
+
+        Assert.True(multi.OverlapsWith(single));
+        Assert.True(single.OverlapsWith(multi));
     }
 
     [Fact]
@@ -162,7 +211,8 @@ public sealed class LeaveRequestTests
             Guid.NewGuid(),
             new DateOnly(2026, 01, 01),
             new DateOnly(2026, 01, 05),
-            "A"
+            "A",
+            DateTimeOffset.UtcNow
         );
         var b = LeaveRequest.Create(
             Guid.NewGuid(),
@@ -170,7 +220,8 @@ public sealed class LeaveRequestTests
             Guid.NewGuid(),
             new DateOnly(2026, 01, 06),
             new DateOnly(2026, 01, 10),
-            "B"
+            "B",
+            DateTimeOffset.UtcNow
         );
 
         Assert.False(a.OverlapsWith(b));

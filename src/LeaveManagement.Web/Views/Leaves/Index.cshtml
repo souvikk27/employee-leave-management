@@ -1,0 +1,111 @@
+@model LeaveManagement.Web.ViewModels.Leave.LeaveListViewModel
+@{
+    ViewData["Title"] = "My Leave Requests";
+    ViewData["PageName"] = "My Leave Requests";
+    ViewData["PageTitle"] = "My Leave Requests";
+    ViewData["PageSubtitle"] = "View your leave history, status and filter by reason.";
+}
+
+<div class="card">
+    <div class="card-head flex-wrap">
+        <div>
+            <div class="card-title">My Leave Requests</div>
+            <div class="card-sub">Your leave history and current pending items.</div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <form method="get" class="d-flex align-items-center gap-2">
+                <select name="status" class="form-select w-auto" onchange="this.form.submit()">
+                    <option value="">All Status</option>
+                    <option value="Pending" selected="@(Model.StatusFilter == "Pending" ? "selected" : null)">Pending</option>
+                    <option value="Approved" selected="@(Model.StatusFilter == "Approved" ? "selected" : null)">Approved</option>
+                    <option value="Rejected" selected="@(Model.StatusFilter == "Rejected" ? "selected" : null)">Rejected</option>
+                </select>
+                <span class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input name="search" value="@Model.Search" placeholder="Search reason..." />
+                </span>
+                <button type="submit" class="btn btn-sm btn-outline-ink">Filter</button>
+                @if (!string.IsNullOrWhiteSpace(Model.StatusFilter) || !string.IsNullOrWhiteSpace(Model.Search))
+                {
+                    <a asp-action="Index" class="btn btn-sm btn-soft">Clear</a>
+                }
+            </form>
+            <a asp-action="Apply" class="btn btn-ink">
+                <i class="bi bi-plus-lg me-1"></i>Apply Leave
+            </a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Items.Any())
+                {
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            <i class="bi bi-calendar-x display-6 d-block mb-2 text-secondary"></i>
+                            No leave requests found matching your criteria.
+                        </td>
+                    </tr>
+                }
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td>@item.FromDate.ToString("yyyy-MM-dd")</td>
+                        <td>@item.ToDate.ToString("yyyy-MM-dd")</td>
+                        <td>@item.Reason</td>
+                        <td>
+                            @if (item.Status == "Approved")
+                            {
+                                <span class="badge-pill badge-approved"><span class="badge-dot"></span>Approved</span>
+                            }
+                            else if (item.Status == "Pending")
+                            {
+                                <span class="badge-pill badge-pending"><span class="badge-dot"></span>Pending</span>
+                            }
+                            else
+                            {
+                                <span class="badge-pill badge-rejected"><span class="badge-dot"></span>Rejected</span>
+                            }
+                        </td>
+                        <td><span class="text-secondary">@item.CreatedAt.ToString("yyyy-MM-dd")</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@{
+    var totalPages = Math.Max(1, (Model.TotalCount + Model.PageSize - 1) / Model.PageSize);
+}
+<div class="d-flex justify-content-between align-items-center mt-3">
+    <div class="text-muted small">Page @Model.Page of @totalPages (@Model.TotalCount total)</div>
+    <div class="d-inline-flex gap-2">
+        @if (Model.Page > 1)
+        {
+            <a asp-action="Index" asp-route-status="@Model.StatusFilter" asp-route-search="@Model.Search" asp-route-page="@(Model.Page - 1)" class="btn btn-sm btn-outline-ink">Previous</a>
+        }
+        else
+        {
+            <button class="btn btn-sm btn-outline-ink" disabled>Previous</button>
+        }
+        @if (Model.Page < totalPages)
+        {
+            <a asp-action="Index" asp-route-status="@Model.StatusFilter" asp-route-search="@Model.Search" asp-route-page="@(Model.Page + 1)" class="btn btn-sm btn-outline-ink">Next</a>
+        }
+        else
+        {
+            <button class="btn btn-sm btn-outline-ink" disabled>Next</button>
+        }
+    </div>
+</div>

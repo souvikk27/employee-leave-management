@@ -54,7 +54,8 @@ public class LeaveRequest : BaseEntity
         Guid employeeId,
         DateOnly fromDate,
         DateOnly toDate,
-        string reason
+        string reason,
+        DateTimeOffset now
     )
     {
         if (fromDate > toDate)
@@ -66,7 +67,6 @@ public class LeaveRequest : BaseEntity
         if (string.IsNullOrWhiteSpace(reason))
             throw new ArgumentException("Reason is required", nameof(reason));
 
-        var now = DateTimeOffset.UtcNow;
         return new LeaveRequest(
             id,
             now,

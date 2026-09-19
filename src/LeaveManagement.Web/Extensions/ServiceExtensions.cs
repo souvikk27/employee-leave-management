@@ -55,6 +55,8 @@ public static class ServiceExtensions
         app.UseHttpsRedirection();
         app.UseStaticFiles();
         app.UseRouting();
+        // Friendly error page (RequestId only, no internals) for 4xx/5xx with empty bodies, e.g. 404s.
+        app.UseStatusCodePagesWithReExecute("/Home/Error");
         app.UseAuthentication();
         app.UseAuthorization();
 
