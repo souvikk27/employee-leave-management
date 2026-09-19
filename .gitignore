@@ -63,3 +63,12 @@ appsettings.Development.json
 appsettings.Local.json
 *.pfx
 *.pfx.password
+
+## Local-only working files (agent instructions, prompts, design refs - never pushed)
+AGENTS.md
+DESIGN.md
+Dot Net Assignment.md
+docs/
+prompts/
+reference.html
+

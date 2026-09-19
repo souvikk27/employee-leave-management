@@ -96,13 +96,6 @@ src/
   LeaveManagement.Web/            Controllers, Razor views, auth, Bootstrap UI
 tests/
   LeaveManagement.Tests/          xUnit suite (domain + SQLite-backed command tests)
-docs/
-  ASSIGNMENT.md                   Source requirements (authority on scope)
-  ARCHITECTURE.md                 Layered-monolith decisions
-  DOMAIN_RULES.md                 Leave lifecycle / overlap / ownership rules
-  DATABASE_GUIDELINES.md          Mandatory persistence standards
-  IMPLEMENTATION_CONTEXT.md       Living record of what is implemented now
-  DECISION_LOG.md                 Key decisions incl. concurrency strategy
 ```
 
 Key design points: overlap check + leave insert run in one `Serializable`
