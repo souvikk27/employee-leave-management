@@ -1,5 +1,7 @@
 using LeaveManagement.Application;
+using LeaveManagement.Application.Services;
 using LeaveManagement.Infrastructure;
+using LeaveManagement.Web.Services;
 
 namespace LeaveManagement.Web.Extensions;
 
@@ -10,8 +12,24 @@ public static class ServiceExtensions
         IConfiguration configuration
     )
     {
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+
         services.AddControllersWithViews();
         services.AddHealthChecks();
+        services
+            .AddAuthentication("Cookies")
+            .AddCookie(
+                "Cookies",
+                options =>
+                {
+                    options.LoginPath = "/Account/Login";
+                    options.AccessDeniedPath = "/Account/Login";
+                    options.SlidingExpiration = true;
+                    options.ExpireTimeSpan = TimeSpan.FromDays(14);
+                }
+            );
+        services.AddAuthorization();
         services.AddApplicationServices(configuration);
         return services;
     }
@@ -37,6 +55,7 @@ public static class ServiceExtensions
         app.UseHttpsRedirection();
         app.UseStaticFiles();
         app.UseRouting();
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapStaticAssets();
