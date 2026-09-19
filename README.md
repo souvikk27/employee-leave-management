@@ -8,7 +8,9 @@ Domain, with Infrastructure for EF Core / SQL Server persistence.
 
 - .NET 10 SDK (`10.0.401`, pinned in `global.json`)
 - SQL Server (2019+; LocalDB or full instance both work)
-- `dotnet-ef` CLI for applying migrations: `dotnet tool install -g dotnet-ef`
+- `dotnet-ef` CLI — optional, only needed for the manual migration/schema
+  commands below (`dotnet tool install -g dotnet-ef`); the app migrates
+  itself on startup
 
 ## Configuration (no secrets in this repo)
 
@@ -87,9 +89,13 @@ These are the assignment-provided test accounts.
 **Admin**
 
 - Dashboard: total/active employees, pending/approved/rejected request counts
-- Employees: list, search, Active/Inactive filter, pagination, create, edit, deactivate
-- Leave Requests: view all requests (status filter, employee/reason search,
-  pagination), approve or reject pending requests (audited with reviewer + timestamp)
+- Employees: list, search, Active/Inactive filter, pagination, create, edit,
+  deactivate, and reactivate (a reactivated employee's account and login are
+  both restored)
+- Leave Requests: view all requests (status filter, date range filter,
+  employee/reason search, pagination), approve or reject pending requests
+- Export: download the current (filtered) leave request list as an Excel
+  (`.xlsx`) file, including who reviewed each request and when
 
 **Employee**
 
@@ -97,6 +103,29 @@ These are the assignment-provided test accounts.
 - My Leaves: own leave history with status filter, reason search, pagination
 - Apply for Leave: From/To dates (today or later) + reason; overlapping
   Pending/Approved leaves are rejected; new requests start as Pending
+- Real-time notification: a toast appears the moment an admin approves or
+  rejects a request, naming who reviewed it and when — no page refresh needed
+  to find out
+
+## Optional (bonus) features implemented
+
+All four bonus items from the assignment brief are implemented:
+
+- **Real-time notifications (SignalR)** — `LeaveNotificationsHub` pushes an
+  update to the requesting employee's browser the instant an admin
+  approves/rejects; it renders as a toast naming the reviewer and timestamp,
+  then refreshes the page data. Delivery failures are caught and logged
+  rather than failing the underlying approval.
+- **Reporting enhancements** — the admin Leave Requests view supports status
+  and date-range filters (department filtering was intentionally not added:
+  there is no department concept anywhere in the assignment's data model.
+- **Excel export** — `Export` on the Leave Requests page generates a real
+  `.xlsx` workbook (via ClosedXML) of the current filtered results, not a
+  CSV-with-an-`.xlsx`-extension.
+- **Audit logging** — every leave request records `ReviewedBy` and
+  `ReviewedAt`, surfaced in the admin list and the Excel export; every entity
+  also carries `CreatedBy/At` and `UpdatedBy/At` via a shared EF Core
+  interceptor.
 
 ## Project structure
 
@@ -110,16 +139,18 @@ tests/
   LeaveManagement.Tests/          xUnit suite (domain + SQLite-backed command tests)
 ```
 
-Key design points: overlap check + leave insert run in one `Serializable`
-transaction; approval/rejection uses the `Version` optimistic-concurrency token
-so two concurrent admin reviews resolve to a single winner; read lists use
-Dapper projections with exact `COUNT(*)` pagination.
-
 ## Security notes
 
 - Cookie authentication with `Admin` / `Employee` role claims; employee identity
   is always derived from the login, never from request data.
 - All state-changing forms carry anti-forgery tokens.
+- Deactivating a user revokes their live session immediately — the auth
+  cookie is re-validated against `Users.IsActive` on every request, so a
+  deactivated employee is signed out mid-session, not just blocked at the
+  next login.
+- The SignalR hub (`/hubs/leave-notifications`) requires authentication and
+  only ever pushes to the group matching the authenticated caller's own user
+  id — a client cannot subscribe to another user's notifications.
 - Never commit real connection strings or passwords — see Configuration above.
   (A development SA password appeared in this repo's early history; rotate it and
   treat it as compromised.)
