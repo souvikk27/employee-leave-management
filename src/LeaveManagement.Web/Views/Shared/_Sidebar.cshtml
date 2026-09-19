@@ -1,0 +1,98 @@
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var userName = User.Identity?.IsAuthenticated == true ? User.Identity.Name : "Avery Chen";
+    var userRole = User.Identity?.IsAuthenticated == true
+        ? (User.IsInRole("Admin") ? "HR administrator" : "Employee")
+        : "HR administrator";
+}
+
+<aside class="sidebar">
+    <div class="brand">
+        <div class="brand-mark">M</div>
+        <div class="brand-text">
+            <span class="brand-name">Mobbin</span>
+            <span class="brand-sub">Leave admin</span>
+        </div>
+    </div>
+
+    <div class="nav-section">
+        <div class="nav-section-label">Overview</div>
+        <a asp-controller="Home" asp-action="Index"
+           class="nav-item @(controller == "Home" && action == "Index" ? "active" : "")"
+           data-bs-toggle="tooltip" data-bs-placement="right" title="Dashboard">
+            <i class="bi bi-grid-1x2-fill"></i>
+            <span class="nav-text">Dashboard</span>
+        </a>
+        <a href="#" class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" title="Calendar">
+            <i class="bi bi-calendar3"></i>
+            <span class="nav-text">Calendar</span>
+        </a>
+    </div>
+
+    <div class="nav-section">
+        <div class="nav-section-label">Leave</div>
+        <a asp-controller="LeaveRequests" asp-action="Index"
+           class="nav-item has-notif @(controller == "LeaveRequests" && action == "Index" ? "active" : "")"
+           data-bs-toggle="tooltip" data-bs-placement="right" title="Requests">
+            <i class="bi bi-inbox"></i>
+            <span class="nav-text">Requests</span>
+            <span class="count">12</span>
+        </a>
+        <a asp-controller="LeaveRequests" asp-action="Approvals"
+           class="nav-item @(controller == "LeaveRequests" && action == "Approvals" ? "active" : "")"
+           data-bs-toggle="tooltip" data-bs-placement="right" title="Approvals">
+            <i class="bi bi-check2-square"></i>
+            <span class="nav-text">Approvals</span>
+        </a>
+        <a href="#" class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" title="Policies">
+            <i class="bi bi-shield-check"></i>
+            <span class="nav-text">Policies</span>
+        </a>
+    </div>
+
+    <div class="nav-section">
+        <div class="nav-section-label">People</div>
+        <a asp-controller="Employees" asp-action="Index"
+           class="nav-item @(controller == "Employees" ? "active" : "")"
+           data-bs-toggle="tooltip" data-bs-placement="right" title="Employees">
+            <i class="bi bi-people"></i>
+            <span class="nav-text">Employees</span>
+        </a>
+        <a href="#" class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" title="Departments">
+            <i class="bi bi-diagram-3"></i>
+            <span class="nav-text">Departments</span>
+        </a>
+    </div>
+
+    <div class="nav-section">
+        <div class="nav-section-label">Insights</div>
+        <a href="#" class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" title="Reports">
+            <i class="bi bi-bar-chart-line"></i>
+            <span class="nav-text">Reports</span>
+        </a>
+        <a href="#" class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" title="Analytics">
+            <i class="bi bi-graph-up"></i>
+            <span class="nav-text">Analytics</span>
+        </a>
+    </div>
+
+    <div class="nav-section">
+        <div class="nav-section-label">System</div>
+        <a href="#" class="nav-item" data-bs-toggle="tooltip" data-bs-placement="right" title="Settings">
+            <i class="bi bi-gear"></i>
+            <span class="nav-text">Settings</span>
+        </a>
+    </div>
+
+    <div class="sidebar-footer">
+        <div class="user-card" data-bs-toggle="tooltip" data-bs-placement="right" title="@userName">
+            <img class="avatar" src="https://i.pravatar.cc/64?img=12" alt="@userName" />
+            <div class="user-meta">
+                <div class="user-name">@userName</div>
+                <div class="user-role">@userRole</div>
+            </div>
+            <i class="bi bi-three-dots-vertical"></i>
+        </div>
+    </div>
+</aside>

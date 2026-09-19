@@ -1,0 +1,39 @@
+@model LeaveManagement.Web.ViewModels.Account.LoginViewModel
+@{
+    Layout = "_LayoutAuth";
+    ViewData["Title"] = "Log in";
+}
+<div>
+    <h1 class="auth-title">Log in to your workspace.</h1>
+    <p class="auth-subtitle">Welcome back. Enter your details to manage leave requests.</p>
+
+    <div class="auth-divider">OR</div>
+
+    <form asp-action="Login" method="post">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+        <div class="mb-3">
+            <label class="form-label-custom" asp-for="Email">Work email</label>
+            <input asp-for="Email" class="form-input-custom" placeholder="name@company.com" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <label class="form-label-custom" asp-for="Password">Password</label>
+                <a href="#" style="font-size:12px;color:var(--colors-text-muted);font-weight:500;text-decoration:none;">Forgot?</a>
+            </div>
+            <input asp-for="Password" type="password" class="form-input-custom" placeholder="Enter password" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+        <div class="form-check mb-4" style="padding-left:1.8em;">
+            <input asp-for="RememberMe" class="form-check-input" style="border-radius:4px;border-color:var(--colors-hairline);margin-top:0.2em;" />
+            <label asp-for="RememberMe" class="form-check-label" style="font-size:13px;color:var(--colors-text-muted);font-weight:450;">Keep me signed in</label>
+        </div>
+        <button type="submit" class="ink-btn-full">
+            Log in <i class="bi bi-arrow-right"></i>
+        </button>
+    </form>
+    <div class="auth-foot">
+        Don't have an account? <a href="#">Sign up for free</a>
+    </div>
+</div>

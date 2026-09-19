@@ -1,0 +1,45 @@
+@{
+    var pageName = ViewData["PageName"] ?? ViewData["Title"] ?? "Dashboard";
+    var pageTitle = ViewData["PageTitle"] ?? ViewData["Title"] ?? "Dashboard";
+    var pageSubtitle = ViewData["PageSubtitle"]?.ToString();
+}
+
+<header class="topbar">
+    <div class="d-flex align-items-center gap-3">
+        <button class="icon-btn" id="sidebarToggle" aria-label="Toggle sidebar">
+            <i class="bi bi-list"></i>
+        </button>
+        <div>
+            <div class="crumb"><span>Workspace</span><span>Leave management</span><span>@pageName</span></div>
+            <h1 class="page-title">@pageTitle</h1>
+            @if (!string.IsNullOrWhiteSpace(pageSubtitle))
+            {
+                <div class="page-sub">@pageSubtitle</div>
+            }
+        </div>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <div class="search-box">
+            <i class="bi bi-search"></i>
+            <input type="text" class="form-control" placeholder="Search employees, requests…">
+        </div>
+        <button class="icon-btn" aria-label="Notifications">
+            <i class="bi bi-bell"></i><span class="dot"></span>
+        </button>
+        <button class="btn btn-outline-ink d-none d-md-inline-flex align-items-center"><i class="bi bi-download"></i> Export</button>
+        @if (ViewData["HideNewRequest"] is not true)
+        {
+            <a asp-controller="LeaveRequests" asp-action="Create" class="btn btn-ink d-flex align-items-center">
+                <i class="bi bi-plus-lg"></i> New request
+            </a>
+        }
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                <button type="submit" class="btn btn-outline-ink d-flex align-items-center" title="Log out">
+                    <i class="bi bi-box-arrow-right"></i>
+                </button>
+            </form>
+        }
+    </div>
+</header>
