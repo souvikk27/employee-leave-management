@@ -1,0 +1,65 @@
+## .NET
+bin/
+obj/
+*.user
+*.useros
+*.userprefs
+*.suo
+*.user
+*.sln.docstates
+
+## Visual Studio
+.vs/
+*.vsproj.user
+.vs/
+
+## Build results
+[D]bin
+[D]obj
+publish/
+out/
+
+## User-specific files
+*.rsuser
+*.suo
+*.user
+*.useros
+*.sln.docstates
+
+## .NET Core
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## NuGet Packages
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+
+## MSTest test Results
+[T]TestResults
+*.trx
+
+## Rider
+.idea/
+*.sln.iml
+
+## VS Code
+.vscode/
+
+## OS
+Thumbs.db
+.DS_Store
+*.swp
+*~
+
+## Logs
+*.log
+logs/
+
+## Environment
+appsettings.Development.json
+appsettings.Local.json
+*.pfx
+*.pfx.password
