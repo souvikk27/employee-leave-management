@@ -343,9 +343,15 @@ a {
     border-radius: 9999px;
     padding: 10px 16px 10px 38px;
     font-size: 13px;
-    width: 260px;
+    width: 320px;
     color: var(--colors-ink);
     font-family: inherit;
+}
+.card-head form .form-select {
+    min-width: 170px;
+}
+.card-head form input[type="date"] {
+    min-width: 170px;
 }
 .search-box input::placeholder {
     color: var(--colors-text-faint);
@@ -530,7 +536,7 @@ a {
         padding: 20px;
     }
     .search-box input {
-        width: 180px;
+        width: 220px;
     }
 }
 
