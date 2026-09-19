@@ -16,4 +16,8 @@
   <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\LeaveManagement.Domain\LeaveManagement.Domain.csproj" />
+  </ItemGroup>
 </Project>
